@@ -2,6 +2,7 @@ from google.cloud import storage
 from pathlib import Path
 import os
 import dotenv
+import asyncio
 dotenv.load_dotenv()
 
 from logs_setup.logger import Logger
@@ -43,4 +44,24 @@ class GCPBucketUpload:
 
     async def upload_file_async(self, local_file_path: str, destination_blob_name: str, make_public: bool = True):
 
-        return self.upload_file(local_file_path, destination_blob_name, make_public)
+        return await asyncio.to_thread(self.upload_file, local_file_path, destination_blob_name, make_public)
+
+    def upload_files(self, files: list):
+        urls = []
+        for file in files:
+            local_file_path = file['local_file_path']
+            destination_blob_name = file['destination_blob_name']
+            url = self.upload_file(local_file_path, destination_blob_name)
+            urls.append(url)
+        return urls
+
+    async def upload_files_async(self, files: list):
+        tasks = [
+            self.upload_file_async(
+                file["local_file_path"],
+                file["destination_blob_name"]
+            )
+            for file in files
+        ]
+
+        return await asyncio.gather(*tasks)
