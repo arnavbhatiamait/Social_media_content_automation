@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 *.jpg
 *.mp4
+*.png
+images/
+reels_images/
