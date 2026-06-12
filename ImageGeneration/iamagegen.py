@@ -26,7 +26,8 @@ os.makedirs("images", exist_ok=True)
 class ImageGen:
     def __init__(self):
         self.model = ImageGenerationModel.from_pretrained(
-    "imagen-4.0-fast-generate-001"
+    # "imagen-4.0-fast-generate-001"
+    "imagen-4.0-generate-001"
     )
         logger.info(f"Model used {self.model}")
 
