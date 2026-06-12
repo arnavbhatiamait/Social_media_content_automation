@@ -97,7 +97,7 @@ class VideoPipeline:
             SceneCreator.attach_audio(tmp_video, audio_path, tmp_narrated)
             
             # Only burn subtitles if enabled via environment variable
-            add_subtitles = os.getenv("ADD_SUBTITLES", "True").lower() in ("true", "1", "yes")
+            add_subtitles = (os.getenv("ADD_SUBTITLES") or os.getenv("subtitles") or "True").lower() in ("true", "1", "yes")
             if add_subtitles:
                 SubtitleGenerator.create_srt(scene.get("text", ""), duration, srt_path)
                 SubtitleGenerator.burn_subtitles(tmp_narrated, srt_path, tmp_subbed)
