@@ -1,9 +1,27 @@
+# LangChain & Gemini LLM
 langchain-core>=0.2.0
 langchain-google-genai>=1.0.0
+
+# Audio & Subtitle processing
 mutagen
 pysrt
+soundfile
+numpy
+
+# Media Generation (Flux & Fallbacks)
+huggingface_hub
+google-cloud-aiplatform
 google-cloud-texttospeech
+
+# Uploaders (GCP, YouTube, Instagram Reels)
+google-cloud-storage
 youtube-upload-python
 google-api-python-client
 google-auth-oauthlib
 google-auth-httplib2
+requests
+
+# Database & Environment Configuration
+python-dotenv
+sqlalchemy
+psycopg2-binary
