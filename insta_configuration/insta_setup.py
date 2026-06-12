@@ -137,4 +137,52 @@ class InstaSetup:
 
         return result.json()
 
+    # ! Carousel
+    def create_carousel_item(self, image_url: str):
+        logger.info("Carousel item is being created")
+        payload = {
+            "image_url": image_url,
+            "is_carousel_item": True,
+            "access_token": self.access_token
+        }
+        try:
+            request = requests.post(
+            f"{self.base_url}/{self.ig_account_id}/media",
+            data=payload
+        )
+            logger.info("Carousel item created successfully")
+            return request.json()["id"]
+        except Exception as e:
+            logger.error(f"Carousel item creation failed {e}")
+            return None
     
+
+    def publish_carousel(self, images, caption):
+        children = [self.create_carousel_item(i) for i in images]
+
+        payload = {
+            "media_type": "CAROUSEL",
+            "children": ",".join(children),
+            "caption": caption,
+            "access_token": self.access_token
+        }
+        try:
+            container = requests.post(
+                f"{self.base_url}/{self.ig_account_id}/media",
+                data=payload
+            ).json()
+            logger.info("Carousel container created")
+        except Exception as e:
+            logger.error(f"Carousel container creation failed {e}")
+        try:
+            requests.post(
+            f"{self.base_url}/{self.ig_account_id}/media_publish",
+            data={
+                "creation_id": container["id"],
+                "access_token": self.access_token
+            }
+            )
+            logger.info("Carousel published successfully")
+        except Exception as e:
+            logger.error(f"Carousel published failed {e}")
+        
