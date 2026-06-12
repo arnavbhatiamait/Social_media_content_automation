@@ -20,8 +20,9 @@ class SceneCreator:
         ]
         
         try:
+            logger.debug(f"Executing command: {' '.join(cmd)}")
             subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            logger.info(f"Animated video saved to {output_path}")
+            logger.info(f"✓ Animated video saved to {output_path}")
         except subprocess.CalledProcessError as e:
             logger.error(f"FFmpeg failed while converting image to video: {e}")
             raise

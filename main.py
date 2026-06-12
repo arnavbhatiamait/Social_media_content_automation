@@ -72,7 +72,7 @@ def main():
             data = json.loads(response_str)
         else:
             data = response_str
-        logger.info("JSON successfully parsed.")
+        logger.info(f"LLM JSON successfully parsed. Extracted {len(scenes)} scenes and {len(image_prompts)} image prompts.")
     except Exception as e:
         logger.error(f"Failed to parse LLM response: {e}")
         return
@@ -100,6 +100,7 @@ def main():
     audio_dir = os.path.abspath("output/audio")
     
     # Step 2: Parallel Generation
+    logger.info("=== STEP 2: PARALLEL ASSET GENERATION ===")
     asyncio.run(generate_assets_parallel(prompts, texts, images_dir, audio_dir))
     
     # Optional: ensure data conforms to VideoPipeline expectations
@@ -107,6 +108,7 @@ def main():
     data["scenes"] = scenes
 
     # Step 3: Video Assembly
+    logger.info("=== STEP 3: VIDEO ASSEMBLY PIPELINE ===")
     pipeline = VideoPipeline(output_dir=os.path.abspath("output"))
     try:
         final_video = pipeline.run_pipeline(

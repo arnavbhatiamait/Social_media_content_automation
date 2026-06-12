@@ -64,12 +64,16 @@ class VideoPipeline:
         shutil.copy2(image_path, output_path)
 
     def run_pipeline(self, data: dict, images_dir: str, audio_dir: str, bgm_path: str = None) -> str:
+        logger.info("================================================")
         logger.info("Starting Video Assembly Pipeline...")
+        logger.info(f"Output directory set to: {self.output_dir}")
+        logger.info("================================================")
         scene_files = []
         scenes = data.get("scenes", [])
         
         for idx, scene in enumerate(scenes):
             scene_num = idx + 1
+            logger.info(f"--- Processing Scene {scene_num}/{len(scenes)} ---")
             image_path = os.path.join(images_dir, f"scene_{scene_num}.png")
             audio_path = os.path.join(audio_dir, f"scene_{scene_num}.wav")
             
@@ -86,7 +90,10 @@ class VideoPipeline:
             tmp_subbed = os.path.join(self.tmp_dir, f"scene_{scene_num}_subbed.mp4")
 
             # Pipeline steps for each scene
+            logger.info(f"[Scene {scene_num}] Step A: Converting image to video...")
             SceneCreator.image_to_video(image_path, duration, tmp_video)
+            
+            logger.info(f"[Scene {scene_num}] Step B: Attaching audio...")
             SceneCreator.attach_audio(tmp_video, audio_path, tmp_narrated)
             
             # Only burn subtitles if enabled via environment variable
@@ -102,6 +109,7 @@ class VideoPipeline:
         if not scene_files:
             raise ValueError("No scenes were successfully generated.")
 
+        logger.info("--- All scenes processed. Starting Concatenation ---")
         concatenated_video = os.path.join(self.tmp_dir, "concatenated.mp4")
         self.concatenate_scenes(scene_files, concatenated_video)
 

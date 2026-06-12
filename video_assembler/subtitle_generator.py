@@ -40,8 +40,9 @@ class SubtitleGenerator:
         ]
         
         try:
+            logger.debug(f"Executing command: {' '.join(cmd)}")
             subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            logger.info("Subtitles burned successfully.")
+            logger.info("✓ Subtitles burned successfully.")
         except subprocess.CalledProcessError as e:
             logger.error(f"FFmpeg failed while burning subtitles: {e}")
             raise
