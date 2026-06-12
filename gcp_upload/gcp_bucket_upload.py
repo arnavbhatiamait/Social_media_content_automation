@@ -10,11 +10,17 @@ logger = Logger(name="GCPBucketUpload",log_file="logs/gcp_bucket_upload.log").ge
 
 GCP_CREDENTIALS_PATH = os.getenv("GCP_CREDENTIALS_PATH")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GCP_CREDENTIALS_PATH
+GCP_CREDENTIALS_PATH = os.getenv("GCP_CREDENTIALS_PATH")
 
+if not GCP_CREDENTIALS_PATH:
+    raise ValueError("GCP_CREDENTIALS_PATH not set")
 class GCPBucketUpload:
     def __init__(self):
         self.client = storage.Client()
         self.bucket_name = os.getenv('GCP_BUCKET_NAME')
+
+        if not self.bucket_name:
+            raise ValueError("GCP_BUCKET_NAME not set")
 
     def get_signed_url(self, blob_name: str, expiration_time: int = 3600) -> str:
         try:
@@ -26,20 +32,68 @@ class GCPBucketUpload:
         except Exception as e:
             logger.error(f"Failed to generate signed URL for {blob_name}: {e}")
             raise
-    def upload_file(self, local_file_path: str, destination_blob_name: str,make_public: bool = True):
+
+
+    def upload_file(
+        self,
+        local_file_path: str,
+        destination_blob_name: str,
+        make_public: bool = False
+    ) -> dict:
+        """
+        Upload a file to Google Cloud Storage.
+
+        Returns:
+            {
+                "bucket": str,
+                "blob_name": str,
+                "filename": str,
+                "public_url": str | None,
+                "gs_url": str,
+                "size_bytes": int
+            }
+        """
 
         try:
+            file_path = Path(local_file_path)
+
+            if not file_path.exists():
+                raise FileNotFoundError(
+                    f"File not found: {local_file_path}"
+                )
+
             bucket = self.client.bucket(self.bucket_name)
             blob = bucket.blob(destination_blob_name)
-            blob.upload_from_filename(local_file_path)
+
+            blob.upload_from_filename(str(file_path))
+
+            public_url = None
+
             if make_public:
                 blob.make_public()
-                logger.info(f"File {local_file_path} uploaded to {destination_blob_name} and made public.")
-                return blob.public_url
-            logger.info(f"File {local_file_path} uploaded to {destination_blob_name}.")
-            return blob.public_url
+                public_url = blob.public_url
+
+            result = {
+                "bucket": self.bucket_name,
+                "blob_name": destination_blob_name,
+                "filename": file_path.name,
+                "public_url": public_url,
+                "gs_url": f"gs://{self.bucket_name}/{destination_blob_name}",
+                "size_bytes": file_path.stat().st_size,
+            }
+
+            logger.info(
+                f"Uploaded '{local_file_path}' "
+                f"to '{destination_blob_name}'"
+            )
+
+            return result
+
         except Exception as e:
-            logger.error(f"Failed to upload file {local_file_path} to GCP bucket: {e}")
+            logger.exception(
+                f"Failed to upload '{local_file_path}' "
+                f"to '{destination_blob_name}': {e}"
+            )
             raise
 
     async def upload_file_async(self, local_file_path: str, destination_blob_name: str, make_public: bool = True):

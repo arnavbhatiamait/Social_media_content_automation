@@ -144,33 +144,67 @@ class MediaAsset(Base, TimestampMixin):
         back_populates="media_asset"
     )
 
-
+# =====================================================
+# IMAGES_GOD
+# =====================================================
 class Images_God(Base):
     __tablename__ = "images_god"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     url: Mapped[str] = mapped_column(String(255))
     gcp_bucket_url: Mapped[str] = mapped_column(String(255))    
     gcp_filename: Mapped[str] = mapped_column(String(255))
+    prompt_used: Mapped[str] = mapped_column(String(255))
+    model_used: Mapped[str] = mapped_column(String(255))
+    insta_url: Mapped[str] = mapped_column(String(255))
+    yt_url: Mapped[str] = mapped_column(String(255))
     alt_text: Mapped[str] = mapped_column(String(255))
+    description: Mapped[str] = mapped_column(String(255))
+    yt_posted: Mapped[bool] = mapped_column(Boolean, default=False)
+    insta_posted: Mapped[bool] = mapped_column(Boolean, default=False)   
     description: Mapped[str] = mapped_column(String(255))
     posted: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-
+# =====================================================
+# VIDEO_GOD
+# =====================================================
 class Video_God(Base):
     __tablename__ = "videos_god"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     url: Mapped[str] = mapped_column(String(255))
     gcp_bucket_url: Mapped[str] = mapped_column(String(255))    
     gcp_filename: Mapped[str] = mapped_column(String(255))
+    prompt_used: Mapped[str] = mapped_column(String(255))
+    model_used: Mapped[str] = mapped_column(String(255))
+    insta_url: Mapped[str] = mapped_column(String(255))
+    yt_url: Mapped[str] = mapped_column(String(255))
     alt_text: Mapped[str] = mapped_column(String(255))
     description: Mapped[str] = mapped_column(String(255))
-    posted: Mapped[bool] = mapped_column(Boolean, default=False)
+    yt_posted: Mapped[bool] = mapped_column(Boolean, default=False)
+    insta_posted: Mapped[bool] = mapped_column(Boolean, default=False)      
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+# ! on demand
+class videos_on_demand(Base):
+    __tablename__ = "videos_on_demand"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    prompt: Mapped[str] = mapped_column(String(255))
+    yt_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    insta_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class images_on_demand(Base):
+    __tablename__ = "images_on_demand"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    prompt: Mapped[str] = mapped_column(String(255))
+    yt_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    insta_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # =====================================================
 # CONTENT
