@@ -1,4 +1,5 @@
 import random
+import json
 
 ENVIRONMENTS = [
     "Mount Kailash",
@@ -307,3 +308,59 @@ def random_scene():
         "seed": random.randint(1, 999999999),
     }
 print(random_scene())
+
+def generate_god_scene_prompt():
+    scene = random_scene()
+
+    prompt = (
+    f"A breathtaking, highly detailed {scene['art_style']} masterpiece depicting the divine presence of {scene['god']}, "
+    f"known as {', '.join(scene['titles'])}. "
+    
+    f"The deity is portrayed with {', '.join(scene['appearance'])}, "
+    f"radiating a {', '.join(scene['personality'])} aura. "
+    f"In their hands, they wield sacred {', '.join(scene['symbols'])}, "
+    f"symbolizing their immense cosmic power. "
+    
+    f"The environment is awe-inspiring: {', '.join(scene['environments'])} "
+    f"bathed in the ethereal light of {scene['time_of_day']}, "
+    f"complemented by {scene['weather']} atmospheric conditions. "
+    
+    f"The composition uses a {scene['camera_angle']} perspective, capturing the deity in a {scene['pose']} stance. "
+    
+    f"Dramatic lighting, featuring {', '.join(scene['lighting'])}, "
+    f"casts deep shadows and brilliant highlights, "
+    f"enhancing the visual impact with a striking {scene['color_palette']} color palette. "
+    
+    f"The intricate background reveals {', '.join(scene['background_details'])}, "
+    f"adding extreme depth and lore to the scene. "
+    
+    f"Rendered in ultra-high resolution (8k, unreal engine 5, octane render style) "
+    f"with volumetric lighting, cinematic depth of field, and hyper-realistic textures. "
+    f"Use seed {scene['seed']} for reproducibility."
+
+    f"A dramatic {scene['art_style']} portrayal of {scene['god']}, "
+    f"featuring {', '.join(scene['symbols'])} "
+    f"in a {scene['weather']} {scene['time_of_day']} setting."
+    
+    f"I want the output in the json format that should have the outptut in the following format: "
+    f"{{ 'prompt': prompt, 'description': description }}"  
+    )
+    prompt_2=(
+    f"A breathtaking, highly detailed {scene['art_style']} masterpiece capturing the transcendent presence of {scene['god']}, "
+    f"reverently known as {', '.join(scene['titles'])}. The deity manifests physically with {', '.join(scene['appearance'])}, "
+    f"radiating a profoundly {', '.join(scene['personality'])} aura that dominates the frame. In their hands, they command "
+    f"the sacred {', '.join(scene['symbols'])}, localized conduits of their immense cosmic power. "
+    f"The surrounding environment is awe-inspiring: an expansive domain of {', '.join(scene['environments'])} "
+    f"bathed in the ethereal, otherworldly light of {scene['time_of_day']}, layered with dense {scene['weather']} atmospheric conditions. "
+    f"The composition leverages a dramatic {scene['camera_angle']} perspective, dynamic framing, and isolates the deity in a "
+    f"strikingly {scene['pose']} stance. Masterful, cinematic lighting featuring {', '.join(scene['lighting'])} sculpts the form with "
+    f"deep, deliberate shadows and brilliant, piercing highlights, all unified by a vivid {scene['color_palette']} color palette. "
+    f"Deep within the composition, the intricate background reveals rich lore through {', '.join(scene['background_details'])}, "
+    f"adding immense narrative depth. Rendered in ultra-high resolution (8k, unreal engine 5, octane render style) with precise "
+    f"volumetric lighting, an anamorphic cinematic depth of field, and hyper-realistic micro-textures. Use seed {scene['seed']} for structural reproducibility. "
+    f"Summary: A dramatic {scene['art_style']} vision of {scene['god']} commanding {', '.join(scene['symbols'])} amidst a {scene['weather']} {scene['time_of_day']} backdrop. "
+    f"Output requested strictly in JSON format matching the schema: {{'prompt': '...', 'description': '...'}}"
+    )
+
+    return prompt_2
+print(generate_god_scene_prompt())
