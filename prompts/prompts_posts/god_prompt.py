@@ -359,7 +359,7 @@ def generate_god_scene_prompt():
     f"adding immense narrative depth. Rendered in ultra-high resolution (8k, unreal engine 5, octane render style) with precise "
     f"volumetric lighting, an anamorphic cinematic depth of field, and hyper-realistic micro-textures. Use seed {scene['seed']} for structural reproducibility. "
     f"Summary: A dramatic {scene['art_style']} vision of {scene['god']} commanding {', '.join(scene['symbols'])} amidst a {scene['weather']} {scene['time_of_day']} backdrop. "
-    f"Output requested strictly in JSON format matching the schema: {{'prompt': '...', 'description': '...'}}"
+    f"Output requested strictly in JSON format matching the schema: {{'prompt': ' this will be used for generating a image so please generate a detailed prompt and make sure it is descriptive and actionable. I should provide a clear and specific description of the scene, including the main subject, setting, and artistic elements.', 'description': 'It will be used for instagram so use max 10 words and use relevant hashtags for better seo reach'}}"
     )
 
     return prompt_2
