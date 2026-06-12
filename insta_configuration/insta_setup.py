@@ -1,19 +1,27 @@
 import requests
 import time
 import os
-from logs_setup.logger import Logger
-
+try:
+    from logs_setup.logger import Logger
+except ImportError:
+    from sys import path
+    from pathlib import Path
+    path.append(str(Path(__file__).parent.parent))
+    from logs_setup.logger import Logger
 logger=Logger("insta_setup",log_file="logs/insta_setup.log").get_logger()
 
+from dotenv import load_dotenv
+load_dotenv()
 ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN")
 IG_ACCOUNT_ID = os.getenv("INSTAGRAM_ACCOUNT_ID")
-
-BASE_URL = "https://graph.facebook.com/v23.0"
+print(os.getenv("INSTAGRAM_ACCOUNT_ID"))
+print(os.getenv("INSTAGRAM_ACCESS_TOKEN"))
+BASE_URL = "https://graph.facebook.com/v25.0"
 class InstaSetup:
     def __init__(self):
         self.access_token = os.getenv("INSTAGRAM_ACCESS_TOKEN")
         self.ig_account_id = os.getenv("INSTAGRAM_ACCOUNT_ID")
-        self.base_url = "https://graph.facebook.com/v23.0"
+        self.base_url = "https://graph.facebook.com/v25.0"
         self.reels_publish_url = f"{self.base_url}/{self.ig_account_id}/media_publish"
         self.post_publish_url = f"{self.base_url}/{self.ig_account_id}/media_publish"
 
@@ -21,6 +29,17 @@ class InstaSetup:
     def make_api_request(self, endpoint, params=None, method="GET"):
         url = f"{self.base_url}{endpoint}"
         logger.info(f"Making API request to {url}")
+        try:
+            if method == "GET":
+                response = requests.get(url, params=params)
+            else:
+                response = requests.post(url, data=params)
+            response.raise_for_status()
+            logger.info(f"API request successful: {response.status_code}")
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"API request failed: {e}")
+            raise
 
     # ! image 
     def publish_image(self, image_url: str, caption: str):
@@ -33,6 +52,11 @@ class InstaSetup:
         }
 
         container = requests.post(create_url, data=payload).json()
+        logger.info(f"Instagram image container response: {container}")
+
+        if "id" not in container:
+            error = container.get("error", container)
+            raise RuntimeError(f"Instagram API error: {error}")
 
         creation_id = container["id"]
 
@@ -63,17 +87,24 @@ class InstaSetup:
             "access_token": self.access_token
         }
         container = requests.post(create_url, data=payload).json()
+        logger.info(f"Instagram reel container response: {container}")
+
+        if "id" not in container:
+            error = container.get("error", container)
+            raise RuntimeError(f"Instagram API error: {error}")
+
         container_id = container["id"]
         status_url = (
             f"{self.base_url}/{container_id}"
-            f"?fields=status_code&access_token={self.access_token}"        )
+            f"?fields=status_code,status&access_token={self.access_token}"        )
 
         while True:
             status = requests.get(status_url).json()
             if status["status_code"] == "FINISHED":
                 break
             if status["status_code"] == "ERROR":
-                raise Exception("Reel processing failed")
+                logger.error(f"Reel processing failed: {status}")
+                raise Exception(f"Reel processing failed: {status}")
             time.sleep(10)
         try:
             result = requests.post(
@@ -185,4 +216,13 @@ class InstaSetup:
             logger.info("Carousel published successfully")
         except Exception as e:
             logger.error(f"Carousel published failed {e}")
-        
+
+if __name__=="__main__":
+    insta_setup = InstaSetup()
+    # result = insta_setup.publish_image("https://example.com/image.jpg", "Caption for the image")
+    # result = insta_setup.publish_reel("https://example.com/video.mp4", "Caption for the reel")
+    # result = insta_setup.publish_story_image("https://example.com/story_image.jpg")
+    # result = insta_setup.publish_story_video("https://example.com/story_video.mp4")
+    result = insta_setup.publish_image("person Output.jpg", "Caption for the image")
+    print(result)
+    # insta_setup.make_api_request("/me", params={"fields": "id,name"})

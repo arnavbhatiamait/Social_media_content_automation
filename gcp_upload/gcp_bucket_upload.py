@@ -26,7 +26,7 @@ class GCPBucketUpload:
         try:
             bucket = self.client.bucket(self.bucket_name)
             blob = bucket.blob(blob_name)
-            url = blob.generate_signed_url(expiration=expiration_time)
+            url = blob.generate_signed_url(version="v4", expiration=expiration_time, method="GET")
             logger.info(f"Generated signed URL for {blob_name}")
             return url
         except Exception as e:
@@ -65,7 +65,12 @@ class GCPBucketUpload:
             bucket = self.client.bucket(self.bucket_name)
             blob = bucket.blob(destination_blob_name)
 
-            blob.upload_from_filename(str(file_path))
+            import mimetypes
+            content_type, _ = mimetypes.guess_type(str(file_path))
+            if content_type:
+                blob.upload_from_filename(str(file_path), content_type=content_type)
+            else:
+                blob.upload_from_filename(str(file_path))
 
             public_url = None
 
