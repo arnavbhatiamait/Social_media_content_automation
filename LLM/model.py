@@ -152,22 +152,8 @@ make sure to generate a detailed prompt and description based on the above syste
 
     def get_llm(self):
         self.logger.info(f"Loading LLM backend for provider '{self.model_provider}'")
-        if self.model_provider.lower() == "ollama":
-            # pyrefly: ignore [missing-import]
-            from langchain_ollama import ChatOllama
-
-            self.logger.info(
-                f"using model = {self.model_name} provider={self.model_provider}"
-            )
-            return ChatOllama(model=self.model_name, temperature=self.temperature)
-        elif self.model_provider.lower() == "openai":
-            from langchain_openai import ChatOpenAI
-
-            self.logger.info(
-                f"using model = {self.model_name} provider={self.model_provider}"
-            )
-            return ChatOpenAI(model=self.model_name, temperature=self.temperature)
-        elif self.model_provider.lower() == "gemini":
+        
+        if self.model_provider.lower() == "gemini":
             from langchain_google_genai import ChatGoogleGenerativeAI
 
             self.logger.info(
@@ -178,17 +164,7 @@ make sure to generate a detailed prompt and description based on the above syste
                 temperature=self.temperature,
                 api_key=api_key_gemini,
             )
-        elif self.model_provider.lower() == "groq":
-            from langchain_groq import ChatGroq
-
-            self.logger.info(
-                f"using model = {self.model_name} provider={self.model_provider}"
-            )
-            return ChatGroq(
-                model=self.model_name,
-                temperature=self.temperature,
-                api_key=api_key_groq,
-            )
+       
         else:
             self.logger.error(f"Unknown provider: '{self.model_provider}'")
             raise ValueError("Provider not found")
