@@ -42,8 +42,9 @@ class VideoPipeline:
 
     def add_intro_title(self, video_path: str, title: str, output_path: str):
         logger.info(f"Adding intro title '{title}' to {video_path}")
-        # Drawtext filter needs escaped single quotes and colons
-        safe_title = title.replace("'", "\\'").replace(":", "\\:")
+        # Drawtext filter needs escaped single quotes and colons.
+        # Replace colons with a dash to prevent FFmpeg parsing crashes on Windows.
+        safe_title = title.replace("'", "\\'").replace(":", " - ")
         cmd = [
             "ffmpeg",
             "-y",

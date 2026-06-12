@@ -19,11 +19,11 @@ logger = Logger(name="FluxImageGen",log_file="logs/flux_image_gen.log").get_logg
 class FluxImageGen:
     def __init__(self):
         self.client = InferenceClient(
-            provider="auto",
+            provider="hf-inference",
             api_key=os.getenv("HF_TOKEN")
         )
         self.model= "black-forest-labs/FLUX.1-schnell"
-        logger.info(f"Initialized InferenceClient with provider auto {self.model}")
+        logger.info(f"Initialized InferenceClient with provider hf-inference {self.model}")
     def generate_image_normal(self,prompt:str):
         logger.info(f"Generating image for prompt: {prompt}")
         response = self.client.text_to_image(

@@ -72,7 +72,12 @@ class VideoUploadPipeline:
             if deity_name.lower() in g.lower():
                 matched_god = g
                 break
-        god_name = matched_god if matched_god else random.choice(list(HINDU_DEITIES.keys()))
+        
+        if not matched_god:
+            # If no deity matched, treat deity_name as a custom prompt and return it directly
+            return deity_name
+
+        god_name = matched_god
         
         # Monkeypatch random.choice temporarily to force selecting the matched deity
         old_choice = random.choice
@@ -83,6 +88,44 @@ class VideoUploadPipeline:
             random.choice = old_choice
             
         return system_prompt
+
+    def get_prompt_from_file(self) -> str | None:
+        """
+        Reads the first unprocessed prompt from video_prompts.txt in the project root,
+        marks it as processed, and returns it.
+        """
+        file_path = os.path.join(PROJECT_ROOT, "video_prompts.txt")
+        if not os.path.exists(file_path):
+            logger.info(f"No prompts file found at {file_path}")
+            return None
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+            chosen_prompt = None
+            chosen_index = -1
+
+            for idx, line in enumerate(lines):
+                stripped = line.strip()
+                if stripped and not stripped.startswith("#"):
+                    chosen_prompt = stripped
+                    chosen_index = idx
+                    break
+
+            if chosen_prompt:
+                # Mark as processed in the file
+                lines[chosen_index] = f"# [PROCESSED] {chosen_prompt}\n"
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.writelines(lines)
+                logger.info(f"Read and marked prompt '{chosen_prompt}' as processed in {file_path}")
+                return chosen_prompt
+            else:
+                logger.info(f"No unprocessed prompts left in {file_path}")
+                return None
+        except Exception as e:
+            logger.error(f"Error reading prompts file: {e}")
+            return None
 
     async def generate_assets_parallel(self, prompts, texts, images_dir, audio_dir):
         """
@@ -98,24 +141,60 @@ class VideoUploadPipeline:
             logger.info("Parallel asset generation complete.")
 
     def _generate_images_sync(self, prompts, output_dir):
-        from ImageGeneration.flux import FluxImageGen
-        flux_gen = FluxImageGen()
-        logger.info(f"Generating {len(prompts)} images...")
-        paths = flux_gen.generate_images_reels(prompts)
-        
         os.makedirs(output_dir, exist_ok=True)
         renamed_paths = []
-        for idx, path in enumerate(paths):
-            scene_num = idx + 1
-            new_path = os.path.join(output_dir, f"scene_{scene_num}.png")
-            if os.path.exists(path):
-                if os.path.exists(new_path):
-                    os.remove(new_path)
-                os.replace(path, new_path)
-                renamed_paths.append(new_path)
-            else:
-                logger.error(f"Image not found at {path}")
-        return renamed_paths
+        use_flux = True
+        original_error = None
+
+        try:
+            from ImageGeneration.flux import FluxImageGen
+            flux_gen = FluxImageGen()
+            logger.info(f"Generating {len(prompts)} images using Flux...")
+            paths = flux_gen.generate_images_reels(prompts)
+            
+            for idx, path in enumerate(paths):
+                scene_num = idx + 1
+                new_path = os.path.join(output_dir, f"scene_{scene_num}.png")
+                if os.path.exists(path):
+                    if os.path.exists(new_path):
+                        os.remove(new_path)
+                    os.replace(path, new_path)
+                    renamed_paths.append(new_path)
+                else:
+                    logger.error(f"Image not found at {path}")
+            return renamed_paths
+        except Exception as e:
+            logger.error(f"Flux image generation failed: {e}. Falling back to Vertex AI Imagen...")
+            original_error = e
+            use_flux = False
+
+        if not use_flux:
+            try:
+                from ImageGeneration.iamagegen import ImageGen
+                imagen = ImageGen()
+                logger.info(f"Generating {len(prompts)} fallback images using Vertex AI Imagen...")
+                for idx, prompt in enumerate(prompts):
+                    scene_num = idx + 1
+                    new_path = os.path.join(output_dir, f"scene_{scene_num}.png")
+                    
+                    images = imagen.model.generate_images(
+                        prompt=prompt,
+                        number_of_images=1,
+                        aspect_ratio="1:1",
+                        safety_filter_level="block_some"
+                    )
+                    if images:
+                        if os.path.exists(new_path):
+                            os.remove(new_path)
+                        images[0].save(new_path, include_generation_parameters=False)
+                        renamed_paths.append(new_path)
+                        logger.info(f"Saved fallback image for scene {scene_num} to: {new_path}")
+                    else:
+                        raise RuntimeError(f"Vertex AI Imagen returned no images for scene {scene_num}")
+                return renamed_paths
+            except Exception as fe:
+                logger.error(f"Fallback Imagen generation also failed: {fe}")
+                raise RuntimeError(f"All video image generation attempts failed: {fe}") from original_error
 
     def _generate_audio_sync(self, texts, output_dir):
         from tts.gtts import GoogleTTS
@@ -312,7 +391,8 @@ class VideoUploadPipeline:
             logger.error(f"Database updates failed: {e}")
 
     def run_pipeline_for_single_video(self, video_path: str, title: str, caption: str, 
-                                      tags: list[str], prompt: str = "", db_id: int = None) -> bool:
+                                      tags: list[str], prompt: str = "", db_id: int = None,
+                                      seo_keywords: list[str] = None, hashtags: list[str] = None) -> bool:
         """
         Runs the full video uploading sequence: GCP Storage, YouTube upload, Instagram Reels, and DB updates.
         """
@@ -332,11 +412,36 @@ class VideoUploadPipeline:
         else:
             signed_url = video_path
 
+        # Combine title, description, hashtags, and SEO keywords for uploads
+        yt_description = caption or ""
+        if hashtags:
+            formatted_hash = " ".join([h if h.startswith('#') else f"#{h}" for h in hashtags])
+            yt_description += f"\n\n{formatted_hash}"
+        if seo_keywords:
+            yt_description += f"\n\nKeywords: {', '.join(seo_keywords)}"
+
+        yt_tags = list(tags) if tags else []
+        if seo_keywords:
+            yt_tags.extend(seo_keywords)
+        # Clean up tags (no #, strip)
+        yt_tags = [t.replace('#', '').strip() for t in yt_tags if t]
+        # Deduplicate
+        seen = set()
+        yt_tags = [x for x in yt_tags if not (x.lower() in seen or seen.add(x.lower()))]
+
+        insta_caption = ""
+        if title:
+            insta_caption += f"{title}\n\n"
+        insta_caption += f"{caption or ''}"
+        if hashtags:
+            formatted_hash = " ".join([h if h.startswith('#') else f"#{h}" for h in hashtags])
+            insta_caption += f"\n\n{formatted_hash}"
+
         # Publish to YouTube
         yt_posted = False
         yt_video_id = None
         if is_local:
-            yt_video_id = self.upload_video_youtube(video_path, title, caption, tags)
+            yt_video_id = self.upload_video_youtube(video_path, title, yt_description, yt_tags)
             if yt_video_id:
                 yt_posted = True
         else:
@@ -346,7 +451,7 @@ class VideoUploadPipeline:
         insta_posted = False
         insta_post_id = None
         if signed_url:
-            insta_result = self.upload_video_insta(signed_url, caption)
+            insta_result = self.upload_video_insta(signed_url, insta_caption)
             if insta_result:
                 insta_post_id = insta_result.get("id")
                 insta_posted = True
@@ -394,6 +499,8 @@ class VideoUploadPipeline:
                     title = data.get("title", "Mahadev Documentary")
                     caption = data.get("description", "")
                     tags = data.get("hashtags", ["AI", "Shorts", "Reels"])
+                    seo_keywords = data.get("seo_keywords", [])
+                    hashtags = data.get("hashtags", [])
                     
                     if self.run_pipeline_for_single_video(
                         video_path=video_path,
@@ -401,7 +508,9 @@ class VideoUploadPipeline:
                         caption=caption,
                         tags=tags,
                         prompt=row.prompt,
-                        db_id=row.id
+                        db_id=row.id,
+                        seo_keywords=seo_keywords,
+                        hashtags=hashtags
                     ):
                         success_count += 1
             except Exception as e:
@@ -416,30 +525,7 @@ class VideoUploadPipeline:
         """
         logger.info("=== Starting Video Pipeline Execution ===")
 
-        if not prompt and not video_path:
-            if self.use_database:
-                return self.process_database_queue()
-            logger.error("No inputs provided, and Database is disabled. Nothing to do.")
-            return False
-
-        if prompt:
-            try:
-                generated_path, data = self.create_video(prompt)
-                if generated_path and data:
-                    final_title = title if title else data.get("title", "Generated Video")
-                    final_caption = caption if caption else data.get("description", "")
-                    final_tags = tags if tags else data.get("hashtags", ["AI", "Shorts"])
-                    return self.run_pipeline_for_single_video(
-                        video_path=generated_path,
-                        title=final_title,
-                        caption=final_caption,
-                        tags=final_tags,
-                        prompt=prompt
-                    )
-            except Exception as e:
-                logger.error(f"Failed to generate/process prompt: {e}")
-                return False
-
+        # Case 1: Existing video path
         if video_path:
             final_title = title if title else os.path.basename(video_path)
             final_caption = caption if caption else "Check this out!"
@@ -451,6 +537,43 @@ class VideoUploadPipeline:
                 tags=final_tags,
                 prompt=prompt or ""
             )
+
+        # If no prompt is passed, try to get one from video_prompts.txt first
+        if not prompt:
+            file_prompt = self.get_prompt_from_file()
+            if file_prompt:
+                prompt = file_prompt
+                logger.info(f"Using prompt '{prompt}' from video_prompts.txt file")
+
+        # Case 2: Database Queue Processing (if no specific prompt is passed and DB is enabled)
+        if not prompt and self.use_database:
+            pending = self.db.get_pending_videos()
+            if pending:
+                return self.process_database_queue()
+            else:
+                logger.info("Database queue is empty. Falling back to a random LLM video generation...")
+
+        # Case 3: Prompt-based or random LLM Generation
+        try:
+            generated_path, data = self.create_video(prompt)
+            if generated_path and data:
+                final_title = title if title else data.get("title", "Generated Video")
+                final_caption = caption if caption else data.get("description", "")
+                final_tags = tags if tags else data.get("hashtags", ["AI", "Shorts"])
+                seo_keywords = data.get("seo_keywords", [])
+                hashtags = data.get("hashtags", [])
+                return self.run_pipeline_for_single_video(
+                    video_path=generated_path,
+                    title=final_title,
+                    caption=final_caption,
+                    tags=final_tags,
+                    prompt=prompt or "",
+                    seo_keywords=seo_keywords,
+                    hashtags=hashtags
+                )
+        except Exception as e:
+            logger.error(f"Failed to generate/process video: {e}")
+            return False
 
         return False
 
