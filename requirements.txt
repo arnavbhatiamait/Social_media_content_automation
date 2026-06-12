@@ -1,27 +1,68 @@
-# LangChain & Gemini LLM
-langchain-core>=0.2.0
-langchain-google-genai>=1.0.0
+# =========================
+# LLMs
+# =========================
+langchain-core>=0.3.0
+langchain-google-genai>=2.0.0
+google-generativeai>=0.8.5
 
-# Audio & Subtitle processing
-mutagen
-pysrt
-soundfile
-numpy
+# =========================
+# Audio Processing
+# =========================
+mutagen>=1.47.0
+soundfile>=0.13.0
+numpy>=2.0.0
+pydub>=0.25.1
+pysrt>=1.1.2
 
-# Media Generation (Flux & Fallbacks)
-huggingface_hub
-google-cloud-aiplatform
-google-cloud-texttospeech
+# =========================
+# Video Processing
+# =========================
+moviepy>=2.1.1
+imageio>=2.37.0
+imageio-ffmpeg>=0.6.0
+opencv-python-headless>=4.12.0
 
-# Uploaders (GCP, YouTube, Instagram Reels)
-google-cloud-storage
-youtube-upload-python
-google-api-python-client
-google-auth-oauthlib
-google-auth-httplib2
-requests
+# =========================
+# Image Generation
+# =========================
+huggingface_hub>=0.34.0
+Pillow>=11.0.0
+requests>=2.32.0
 
-# Database & Environment Configuration
-python-dotenv
-sqlalchemy
-psycopg2-binary
+# =========================
+# Google Cloud
+# =========================
+google-cloud-storage>=3.1.0
+google-cloud-texttospeech>=2.27.0
+google-cloud-aiplatform>=1.108.0
+
+# =========================
+# YouTube Upload
+# =========================
+google-api-python-client>=2.176.0
+google-auth>=2.40.0
+google-auth-oauthlib>=1.2.2
+google-auth-httplib2>=0.2.0
+
+# =========================
+# Instagram / Meta
+# =========================
+requests>=2.32.0
+
+# =========================
+# Database
+# =========================
+sqlalchemy>=2.0.41
+psycopg2-binary>=2.9.10
+
+# =========================
+# Config
+# =========================
+python-dotenv>=1.1.0
+
+# =========================
+# Utilities
+# =========================
+tqdm>=4.67.0
+tenacity>=9.1.0
+python-dateutil>=2.9.0
