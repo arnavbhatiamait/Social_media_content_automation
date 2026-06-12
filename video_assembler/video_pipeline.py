@@ -45,11 +45,35 @@ class VideoPipeline:
         # Drawtext filter needs escaped single quotes and colons.
         # Replace colons with a dash to prevent FFmpeg parsing crashes on Windows.
         safe_title = title.replace("'", "\\'").replace(":", " - ")
+        
+        # OS-agnostic standard font file paths
+        font_paths = [
+            # Windows
+            "C:/Windows/Fonts/arial.ttf",
+            "C:/Windows/Fonts/calibri.ttf",
+            # Linux
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+        ]
+        
+        font_arg = ""
+        for fp in font_paths:
+            if os.path.exists(fp):
+                # Colons in Windows paths must be escaped in the filter string
+                escaped_fp = fp.replace(":", "\\:")
+                font_arg = f":fontfile='{escaped_fp}'"
+                break
+                
+        # Fall back to generic font='Sans' if no file is found
+        if not font_arg:
+            font_arg = ":font='Sans'"
+
         cmd = [
             "ffmpeg",
             "-y",
             "-i", video_path,
-            "-vf", f"drawtext=text='{safe_title}':fontcolor=white:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2:enable='between(t,0,3)'",
+            "-vf", f"drawtext=text='{safe_title}':fontcolor=white:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2{font_arg}:enable='between(t,0,3)'",
             "-c:a", "copy",
             output_path
         ]

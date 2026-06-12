@@ -23,5 +23,9 @@ class Logger:
             handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count, encoding='utf-8')
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
+            
+            stream_handler = logging.StreamHandler()
+            stream_handler.setFormatter(formatter)
+            self.logger.addHandler(stream_handler)
     def get_logger(self):
         return self.logger
