@@ -69,9 +69,9 @@ class GCPBucketUpload:
 
             public_url = None
 
-            if make_public:
-                blob.make_public()
-                public_url = blob.public_url
+            # if make_public:
+            #     blob.make_public()
+            #     public_url = blob.public_url
 
             result = {
                 "bucket": self.bucket_name,

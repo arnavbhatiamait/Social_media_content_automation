@@ -1,2 +1,8 @@
 .env
 *.json
+*.log
+logs/
+__pycache__/
+*.pyc
+*.jpg
+*.mp4
