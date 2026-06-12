@@ -164,37 +164,58 @@ class VideoUploadPipeline:
                     logger.error(f"Image not found at {path}")
             return renamed_paths
         except Exception as e:
-            logger.error(f"Flux image generation failed: {e}. Falling back to Vertex AI Imagen...")
+            logger.error(f"Flux image generation failed: {e}. Falling back to Free Stable Diffusion XL...")
             original_error = e
             use_flux = False
 
         if not use_flux:
+            use_sdxl = True
             try:
-                from ImageGeneration.iamagegen import ImageGen
-                imagen = ImageGen()
-                logger.info(f"Generating {len(prompts)} fallback images using Vertex AI Imagen...")
+                from huggingface_hub import InferenceClient
+                client = InferenceClient(api_key=os.getenv("HF_TOKEN"))
+                sd_model = "stabilityai/stable-diffusion-xl-base-1.0"
+                logger.info(f"Generating {len(prompts)} fallback images using free SDXL model...")
+                
                 for idx, prompt in enumerate(prompts):
                     scene_num = idx + 1
                     new_path = os.path.join(output_dir, f"scene_{scene_num}.png")
                     
-                    images = imagen.model.generate_images(
-                        prompt=prompt,
-                        number_of_images=1,
-                        aspect_ratio="1:1",
-                        safety_filter_level="block_some"
+                    image = client.text_to_image(
+                        prompt,
+                        model=sd_model,
+                        width=1024,
+                        height=1024
                     )
-                    if images:
-                        if os.path.exists(new_path):
-                            os.remove(new_path)
-                        images[0].save(new_path, include_generation_parameters=False)
-                        renamed_paths.append(new_path)
-                        logger.info(f"Saved fallback image for scene {scene_num} to: {new_path}")
-                    else:
-                        raise RuntimeError(f"Vertex AI Imagen returned no images for scene {scene_num}")
+                    
+                    if os.path.exists(new_path):
+                        os.remove(new_path)
+                    image.save(new_path)
+                    renamed_paths.append(new_path)
+                    logger.info(f"Saved fallback SDXL image for scene {scene_num} to: {new_path}")
                 return renamed_paths
-            except Exception as fe:
-                logger.error(f"Fallback Imagen generation also failed: {fe}")
-                raise RuntimeError(f"All video image generation attempts failed: {fe}") from original_error
+            except Exception as sde:
+                logger.error(f"SDXL fallback also failed: {sde}. Falling back to Vertex AI Imagen...")
+                use_sdxl = False
+
+            if not use_sdxl:
+                try:
+                    from ImageGeneration.iamagegen import ImageGen
+                    imagen = ImageGen()
+                    logger.info(f"Generating {len(prompts)} fallback images using Vertex AI Imagen (iamagegen.py)...")
+                    for idx, prompt in enumerate(prompts):
+                        scene_num = idx + 1
+                        new_path = os.path.join(output_dir, f"scene_{scene_num}.png")
+                        
+                        saved = imagen.generate_single_image(prompt=prompt, output_path=new_path)
+                        if saved and os.path.exists(new_path):
+                            renamed_paths.append(new_path)
+                            logger.info(f"Saved fallback image for scene {scene_num} to: {new_path}")
+                        else:
+                            raise RuntimeError(f"Vertex AI Imagen (iamagegen.py) failed to generate/save image for scene {scene_num}")
+                    return renamed_paths
+                except Exception as fe:
+                    logger.error(f"Fallback Imagen generation also failed: {fe}")
+                    raise RuntimeError(f"All video image generation attempts failed: {fe}") from original_error
 
     def _generate_audio_sync(self, texts, output_dir):
         from tts.gtts import GoogleTTS

@@ -86,7 +86,7 @@ class ImageUploadPipeline:
 
     def create_image(self, prompt: str, output_path: str = None) -> str:
         """
-        Generate an image from a prompt using Flux or Vertex Imagen, with fallback capabilities.
+        Generate an image from a prompt using Flux, with fallbacks to SDXL and Vertex Imagen.
         """
         logger.info(f"Generating image for prompt: '{prompt}'")
         os.makedirs("images", exist_ok=True)
@@ -94,60 +94,56 @@ class ImageUploadPipeline:
         if not output_path:
             output_path = f"images/gen_{uuid.uuid4().hex[:8]}.png"
 
+        # Try Flux
         try:
-            if not self.generator:
-                if self.generator_type == "flux":
-                    from ImageGeneration.flux import FluxImageGen
-                    self.generator = FluxImageGen()
-                else:
-                    from ImageGeneration.iamagegen import ImageGen
-                    self.generator = ImageGen()
-
-            if self.generator.__class__.__name__ == "FluxImageGen":
-                logger.info("Using Flux generator...")
-                response = self.generator.client.text_to_image(
-                    prompt,
-                    model=self.generator.model,
-                    width=1024,
-                    height=1024
-                )
-                response.save(output_path)
-            else:
-                logger.info("Using Vertex AI Imagen generator...")
-                images = self.generator.model.generate_images(
-                    prompt=prompt,
-                    number_of_images=1,
-                    aspect_ratio="1:1",
-                    safety_filter_level="block_some"
-                )
-                if images:
-                    images[0].save(output_path, include_generation_parameters=False)
-                else:
-                    raise RuntimeError("No image returned by Vertex AI model.")
-
-            logger.info(f"Saved generated image to: {output_path}")
+            logger.info("Attempting image generation using Flux...")
+            from ImageGeneration.flux import FluxImageGen
+            generator = FluxImageGen()
+            response = generator.client.text_to_image(
+                prompt,
+                model=generator.model,
+                width=1024,
+                height=1024
+            )
+            response.save(output_path)
+            logger.info(f"Saved generated Flux image to: {output_path}")
             return output_path
+        except Exception as flux_err:
+            logger.error(f"Flux image generation failed: {flux_err}. Trying Free SDXL fallback...")
 
-        except Exception as e:
-            logger.error(f"Image generation failed with {self.generator_type}: {e}. Trying fallback...")
-            try:
-                if self.generator_type == "flux":
-                    from ImageGeneration.iamagegen import ImageGen
-                    fallback = ImageGen()
-                    images = fallback.model.generate_images(prompt=prompt, number_of_images=1, aspect_ratio="1:1", safety_filter_level="block_some")
-                    if images:
-                        images[0].save(output_path, include_generation_parameters=False)
-                        return output_path
-                else:
-                    from ImageGeneration.flux import FluxImageGen
-                    fallback = FluxImageGen()
-                    response = fallback.client.text_to_image(prompt, model=fallback.model, width=1024, height=1024)
-                    response.save(output_path)
-                    return output_path
-                raise RuntimeError("Fallback returned no images.")
-            except Exception as fe:
-                logger.error(f"Fallback generation failed: {fe}")
-                raise RuntimeError(f"All image generation attempts failed: {fe}") from e
+        # Fallback 1: Free Stable Diffusion XL
+        try:
+            logger.info("Attempting image generation using Free SDXL...")
+            from huggingface_hub import InferenceClient
+            client = InferenceClient(api_key=os.getenv("HF_TOKEN"))
+            sd_model = "stabilityai/stable-diffusion-xl-base-1.0"
+            
+            image = client.text_to_image(
+                prompt,
+                model=sd_model,
+                width=1024,
+                height=1024
+            )
+            image.save(output_path)
+            logger.info(f"Saved generated SDXL image to: {output_path}")
+            return output_path
+        except Exception as sdxl_err:
+            logger.error(f"SDXL fallback also failed: {sdxl_err}. Trying Vertex AI Imagen fallback...")
+
+        # Fallback 2: Vertex AI Imagen (iamagegen.py)
+        try:
+            logger.info("Attempting image generation using Vertex AI Imagen (iamagegen.py)...")
+            from ImageGeneration.iamagegen import ImageGen
+            fallback = ImageGen()
+            saved = fallback.generate_single_image(prompt=prompt, output_path=output_path)
+            if saved and os.path.exists(output_path):
+                logger.info(f"Saved generated Imagen image to: {output_path}")
+                return output_path
+            else:
+                raise RuntimeError("No image returned/saved by Vertex AI model via iamagegen.py.")
+        except Exception as imagen_err:
+            logger.error(f"All image generation fallbacks failed: {imagen_err}")
+            raise RuntimeError(f"All image generation attempts failed: {imagen_err}") from flux_err
 
     def upload_image_storage(self, image_path: str) -> dict:
         """

@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PROJECT_ID = os.getenv("PROJECT_ID")
-LOCATION = os.getenv("LOCATION")
+LOCATION = os.getenv("LOCATION") or os.getenv("GCP_LOCATION") or "us-central1"
 
 vertexai.init(
     project=PROJECT_ID,
@@ -31,7 +31,7 @@ class ImageGen:
         logger.info(f"Model used {self.model}")
 
 
-    def generate_single_image(self,prompt:str):
+    def generate_single_image(self, prompt: str, output_path: str = None):
         logger.info(f"Generating image for prompt: {prompt}")
         images = self.model.generate_images(
             prompt=prompt,
@@ -41,17 +41,20 @@ class ImageGen:
             safety_filter_level="block_some"
         )   
         logger.info(f"Generated  images for prompt: {prompt}, images: {images}")
-        for i,image in enumerate(images):
+        saved_paths = []
+        for i, image in enumerate(images):
             try:
-                logger.info(f"Saving image {i} for prompt: {prompt}, image: {image}")
+                path_to_save = output_path if output_path else f"images/generated_image_{i}.png"
+                logger.info(f"Saving image {i} for prompt: {prompt} to: {path_to_save}")
                 image.save(
-                    f"images/generated_image_{i}.png",
+                    path_to_save,
                     include_generation_parameters=False
                 )
+                saved_paths.append(path_to_save)
             except Exception as e:
-                logger.error(f"Error occurred while saving image {i} for prompt: {prompt}, image: {image}, error: {e}")
+                logger.error(f"Error occurred while saving image {i} for prompt: {prompt}, error: {e}")
             
-        return [f"images/generated_image_{i}.png" for i in range(1,2)]
+        return saved_paths
     
     def generate_multiple_images(self,prompt:str,number_of_images:int):
         logger.info(f"Generating {number_of_images} images for prompt: {prompt}")
