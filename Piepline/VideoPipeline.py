@@ -172,7 +172,10 @@ class VideoUploadPipeline:
             use_sdxl = True
             try:
                 from huggingface_hub import InferenceClient
-                client = InferenceClient(api_key=os.getenv("HF_TOKEN"))
+                client = InferenceClient(
+                    provider="hf-inference",
+                    api_key=os.getenv("HF_TOKEN")
+                )
                 sd_model = "stabilityai/stable-diffusion-xl-base-1.0"
                 logger.info(f"Generating {len(prompts)} fallback images using free SDXL model...")
                 
@@ -475,7 +478,10 @@ class VideoUploadPipeline:
             insta_result = self.upload_video_insta(signed_url, insta_caption)
             if insta_result:
                 insta_post_id = insta_result.get("id")
-                insta_posted = True
+                if insta_post_id:
+                    insta_posted = True
+                else:
+                    logger.error(f"Instagram Reel publication failed: {insta_result}")
         else:
             logger.warning("No signed/public URL available. Skipping Instagram publish.")
 

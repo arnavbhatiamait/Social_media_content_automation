@@ -60,6 +60,36 @@ class InstaSetup:
 
         creation_id = container["id"]
 
+        # Wait/check status of the image container to ensure it's fully processed
+        status_url = (
+            f"{self.base_url}/{creation_id}"
+            f"?fields=status_code,status&access_token={self.access_token}"
+        )
+        
+        # Check status for up to 30 seconds
+        for _ in range(6):
+            try:
+                status_res = requests.get(status_url)
+                if status_res.status_code == 200:
+                    status = status_res.json()
+                    status_code = status.get("status_code")
+                    if status_code == "FINISHED":
+                        logger.info("Image container processing finished.")
+                        break
+                    elif status_code == "ERROR":
+                        logger.error(f"Image container processing failed: {status}")
+                        raise RuntimeError(f"Image container processing failed: {status}")
+                    elif status_code is None:
+                        # If status_code is not returned, just sleep a bit and proceed
+                        logger.info("status_code field not present in container metadata. Sleeping 5 seconds.")
+                        time.sleep(5)
+                        break
+                else:
+                    logger.warning(f"Failed to check container status: {status_res.text}")
+            except Exception as se:
+                logger.warning(f"Error checking container status: {se}")
+            time.sleep(5)
+
         try:
             result = requests.post(
             self.post_publish_url,
@@ -68,11 +98,15 @@ class InstaSetup:
                 "access_token": self.access_token
             }
             )
-            logger.info(f"Image published successfully")
+            result_json = result.json()
+            if "id" in result_json:
+                logger.info(f"Image published successfully: {result_json['id']}")
+            else:
+                logger.error(f"Image publish API returned error/no id: {result_json}")
+            return result_json
         except Exception as e:
             logger.error(f"Image published failed {e}")
-
-        return result.json()
+            raise
 
     # ! reels ---------------------------------------------------------
 

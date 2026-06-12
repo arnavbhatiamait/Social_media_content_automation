@@ -115,7 +115,10 @@ class ImageUploadPipeline:
         try:
             logger.info("Attempting image generation using Free SDXL...")
             from huggingface_hub import InferenceClient
-            client = InferenceClient(api_key=os.getenv("HF_TOKEN"))
+            client = InferenceClient(
+                provider="hf-inference",
+                api_key=os.getenv("HF_TOKEN")
+            )
             sd_model = "stabilityai/stable-diffusion-xl-base-1.0"
             
             image = client.text_to_image(
@@ -182,8 +185,13 @@ class ImageUploadPipeline:
         logger.info("Publishing image post to Instagram...")
         try:
             result = self.insta.publish_image(image_url=image_url, caption=caption)
-            logger.info(f"Instagram publish success. Post ID: {result.get('id')}")
-            return True
+            post_id = result.get('id') if result else None
+            if post_id:
+                logger.info(f"Instagram publish success. Post ID: {post_id}")
+                return True
+            else:
+                logger.error(f"Instagram publish failed: {result}")
+                return False
         except Exception as e:
             logger.error(f"Instagram publishing failed: {e}")
             return False
