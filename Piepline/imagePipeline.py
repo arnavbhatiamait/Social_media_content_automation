@@ -1,0 +1,318 @@
+import os
+import sys
+import uuid
+from pathlib import Path
+
+# Ensure project root is in sys.path
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from insta_configuration.insta_setup import InstaSetup
+from logs_setup.logger import Logger
+from gcp_upload.gcp_bucket_upload import GCPBucketUpload
+from schemas_n_db.database import DatabaseOperations
+
+logger = Logger(name="ImageUploadPipeline", log_file="logs/image_upload_pipeline.log").get_logger()
+
+class ImageUploadPipeline:
+    def __init__(self, Storage: bool = True, Database: bool = True, generator_type: str = "flux"):
+        """
+        Initialize the ImageUploadPipeline with toggleable storage and database components.
+        """
+        self.use_storage = Storage
+        self.use_database = Database
+        self.generator_type = generator_type.lower()
+        self.generator = None
+
+        logger.info(f"Initializing ImageUploadPipeline (Storage: {Storage}, Database: {Database}, Generator: {self.generator_type})")
+
+        self.insta = InstaSetup()
+
+        # Conditionally initialize GCP bucket storage
+        if self.use_storage:
+            try:
+                self.storage = GCPBucketUpload()
+            except Exception as e:
+                logger.error(f"Could not initialize GCPBucketUpload: {e}. Running with Storage=False.")
+                self.use_storage = False
+                self.storage = None
+        else:
+            self.storage = None
+
+        # Conditionally initialize Database Operations
+        if self.use_database:
+            try:
+                self.db = DatabaseOperations()
+            except Exception as e:
+                logger.error(f"Could not initialize DatabaseOperations: {e}. Running with Database=False.")
+                self.use_database = False
+                self.db = None
+        else:
+            self.db = None
+
+    def create_image(self, prompt: str, output_path: str = None) -> str:
+        """
+        Generate an image from a prompt using Flux or Vertex Imagen, with fallback capabilities.
+        """
+        logger.info(f"Generating image for prompt: '{prompt}'")
+        os.makedirs("images", exist_ok=True)
+
+        if not output_path:
+            output_path = f"images/gen_{uuid.uuid4().hex[:8]}.png"
+
+        try:
+            if not self.generator:
+                if self.generator_type == "flux":
+                    from ImageGeneration.flux import FluxImageGen
+                    self.generator = FluxImageGen()
+                else:
+                    from ImageGeneration.iamagegen import ImageGen
+                    self.generator = ImageGen()
+
+            if self.generator.__class__.__name__ == "FluxImageGen":
+                logger.info("Using Flux generator...")
+                response = self.generator.client.text_to_image(
+                    prompt,
+                    model=self.generator.model,
+                    width=1024,
+                    height=1024
+                )
+                response.save(output_path)
+            else:
+                logger.info("Using Vertex AI Imagen generator...")
+                images = self.generator.model.generate_images(
+                    prompt=prompt,
+                    number_of_images=1,
+                    aspect_ratio="1:1",
+                    safety_filter_level="block_some"
+                )
+                if images:
+                    images[0].save(output_path, include_generation_parameters=False)
+                else:
+                    raise RuntimeError("No image returned by Vertex AI model.")
+
+            logger.info(f"Saved generated image to: {output_path}")
+            return output_path
+
+        except Exception as e:
+            logger.error(f"Image generation failed with {self.generator_type}: {e}. Trying fallback...")
+            try:
+                if self.generator_type == "flux":
+                    from ImageGeneration.iamagegen import ImageGen
+                    fallback = ImageGen()
+                    images = fallback.model.generate_images(prompt=prompt, number_of_images=1, aspect_ratio="1:1", safety_filter_level="block_some")
+                    if images:
+                        images[0].save(output_path, include_generation_parameters=False)
+                        return output_path
+                else:
+                    from ImageGeneration.flux import FluxImageGen
+                    fallback = FluxImageGen()
+                    response = fallback.client.text_to_image(prompt, model=fallback.model, width=1024, height=1024)
+                    response.save(output_path)
+                    return output_path
+                raise RuntimeError("Fallback returned no images.")
+            except Exception as fe:
+                logger.error(f"Fallback generation failed: {fe}")
+                raise RuntimeError(f"All image generation attempts failed: {fe}") from e
+
+    def upload_image_storage(self, image_path: str) -> dict:
+        """
+        Uploads a local image file to GCP storage and returns the metadata and signed URL.
+        """
+        if not self.use_storage or not self.storage:
+            logger.warning("Storage option is disabled. Skipping GCP upload.")
+            return {}
+
+        logger.info(f"Uploading image to storage: {image_path}")
+        try:
+            blob_name = f"images/{os.path.basename(image_path)}"
+            gcp_result = self.storage.upload_file(
+                local_file_path=image_path,
+                destination_blob_name=blob_name,
+                make_public=False
+            )
+            signed_url = self.storage.get_signed_url(blob_name, expiration_time=3600)
+            return {
+                "gs_url": gcp_result.get("gs_url"),
+                "filename": gcp_result.get("filename"),
+                "signed_url": signed_url
+            }
+        except Exception as e:
+            logger.error(f"Failed to upload image to GCP Storage: {e}")
+            return {}
+
+    def upload_image_insta(self, image_url: str, caption: str) -> bool:
+        """
+        Publishes a public URL image directly to Instagram.
+        """
+        if not image_url:
+            logger.error("No valid image URL provided for Instagram.")
+            return False
+
+        logger.info("Publishing image post to Instagram...")
+        try:
+            result = self.insta.publish_image(image_url=image_url, caption=caption)
+            logger.info(f"Instagram publish success. Post ID: {result.get('id')}")
+            return True
+        except Exception as e:
+            logger.error(f"Instagram publishing failed: {e}")
+            return False
+
+    def save_metadata(self, db_id: int | None, image_path: str, gcp_url: str | None, 
+                      gcp_filename: str | None, signed_url: str | None, 
+                      caption: str, prompt: str, insta_posted: bool):
+        """
+        Persists run metadata to the database, updating both queues and execution history logs.
+        """
+        try:
+            if db_id is not None:
+                self.db.mark_image_generated(db_id)
+                if insta_posted:
+                    self.db.mark_image_insta_posted(db_id)
+
+            session = self.db._get_session()
+            if session:
+                try:
+                    from schemas_n_db.schema import Images_God
+                    model_name = getattr(self.generator or self, 'generator_type', 'unknown')
+                    if hasattr(self, 'generator') and self.generator:
+                        model_name = getattr(self.generator, 'model', model_name)
+
+                    img_record = Images_God(
+                        url=image_path,
+                        gcp_bucket_url=gcp_url or "",
+                        gcp_filename=gcp_filename or "",
+                        prompt_used=prompt,
+                        model_used=str(model_name),
+                        insta_url=signed_url or "",
+                        yt_url="",
+                        alt_text=caption[:255] if caption else "",
+                        description=caption or "",
+                        yt_posted=False,
+                        insta_posted=insta_posted,
+                        posted=insta_posted
+                    )
+                    session.add(img_record)
+                    session.commit()
+                    logger.info("Saved image metadata to Images_God database table.")
+                except Exception as db_err:
+                    session.rollback()
+                    logger.error(f"Failed to record metadata entry in Images_God: {db_err}")
+                finally:
+                    session.close()
+        except Exception as e:
+            logger.error(f"Database updates failed: {e}")
+
+    def run_pipeline_for_single_image(self, image_path: str, caption: str, prompt: str = "", db_id: int = None) -> bool:
+        """
+        Runs the full sequence: uploads local files, publishes to Instagram, and logs to DB.
+        """
+        logger.info(f"Running sub-pipeline for: {image_path}")
+        is_local = not (image_path.startswith("http://") or image_path.startswith("https://"))
+        
+        gcp_url, gcp_filename, signed_url = None, None, None
+
+        if is_local:
+            upload_info = self.upload_image_storage(image_path)
+            if upload_info:
+                gcp_url = upload_info.get("gs_url")
+                gcp_filename = upload_info.get("filename")
+                signed_url = upload_info.get("signed_url")
+            else:
+                logger.warning(f"Could not upload local file '{image_path}' to storage. Instagram requires a public URL.")
+                return False
+        else:
+            signed_url = image_path
+
+        insta_posted = self.upload_image_insta(signed_url, caption)
+
+        if self.use_database and self.db:
+            self.save_metadata(db_id, image_path, gcp_url, gcp_filename, signed_url, caption, prompt, insta_posted)
+
+        return insta_posted
+
+    def process_database_queue(self) -> bool:
+        """
+        Processes all pending image prompts in the database images_on_demand table.
+        """
+        if not self.use_database or not self.db:
+            logger.warning("Database option is disabled. Cannot process queue.")
+            return False
+
+        pending = self.db.get_pending_images()
+        if not pending:
+            logger.info("No pending images in queue.")
+            return True
+
+        logger.info(f"Processing {len(pending)} pending image(s) from database.")
+        success_count = 0
+
+        for row in pending:
+            try:
+                img_path = self.create_image(row.prompt)
+                if img_path:
+                    caption = f"{row.prompt} #ai #generated #art"
+                    if self.run_pipeline_for_single_image(img_path, caption, row.prompt, row.id):
+                        success_count += 1
+            except Exception as e:
+                logger.error(f"Error processing row ID {row.id} from queue: {e}")
+
+        return success_count == len(pending)
+
+    def run(self, prompt: str = None, image_path: str = None, caption: str = None) -> bool:
+        """
+        Master orchestrator to execute the image generation and publishing pipeline.
+        """
+        logger.info("=== Starting Image Pipeline Execution ===")
+
+        if not prompt and not image_path:
+            if self.use_database:
+                return self.process_database_queue()
+            logger.error("No inputs provided, and Database is disabled. Nothing to do.")
+            return False
+
+        if prompt:
+            try:
+                generated_path = self.create_image(prompt)
+                if generated_path:
+                    final_caption = caption if caption else f"{prompt} #ai #generated #art"
+                    return self.run_pipeline_for_single_image(generated_path, final_caption, prompt)
+            except Exception as e:
+                logger.error(f"Failed to generate/process prompt: {e}")
+                return False
+
+        if image_path:
+            final_caption = caption if caption else "Check this out! #ai #image"
+            return self.run_pipeline_for_single_image(image_path, final_caption, prompt or "")
+
+        return False
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Image Upload Pipeline CLI")
+    parser.add_argument("--prompt", help="Prompt to generate an image")
+    parser.add_argument("--image", help="Local path or URL of an existing image")
+    parser.add_argument("--caption", help="Caption for Instagram")
+    parser.add_argument("--no-storage", action="store_true", help="Disable GCP storage upload")
+    parser.add_argument("--no-db", action="store_true", help="Disable database logging")
+    parser.add_argument("--generator", default="flux", choices=["flux", "imagen"], help="Image generator to use")
+    
+    args = parser.parse_args()
+    
+    pipeline = ImageUploadPipeline(
+        Storage=not args.no_storage,
+        Database=not args.no_db,
+        generator_type=args.generator
+    )
+    
+    success = pipeline.run(
+        prompt=args.prompt,
+        image_path=args.image,
+        caption=args.caption
+    )
+    
+    if success:
+        print("\nImage pipeline execution completed successfully!")
+    else:
+        print("\nImage pipeline execution failed or nothing to process.")

@@ -1,8 +1,6 @@
 import os
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
-from openai import images
-from streamlit import image
 from datetime import datetime
 load_dotenv()
 os.makedirs("images", exist_ok=True)
@@ -10,7 +8,6 @@ os.makedirs("reels_images", exist_ok=True)
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 try:
     from logs_setup.logger import Logger
-    print(f"Error importing logger: {e}")
 except Exception as e:
     from pathlib import Path
     from sys import path
