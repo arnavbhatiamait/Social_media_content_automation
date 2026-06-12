@@ -1,0 +1,3 @@
+"""
+Video Assembler Module
+"""

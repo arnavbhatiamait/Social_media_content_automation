@@ -1,2 +1,9 @@
 langchain-core>=0.2.0
 langchain-google-genai>=1.0.0
+mutagen
+pysrt
+google-cloud-texttospeech
+youtube-upload-python
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
