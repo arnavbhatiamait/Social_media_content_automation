@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import uuid
 from pathlib import Path
 
@@ -50,6 +51,38 @@ class ImageUploadPipeline:
                 self.db = None
         else:
             self.db = None
+
+    def get_god_prompt_for_deity(self, deity_name: str = None) -> str:
+        """
+        Generates the god scene system prompt, optionally overriding the deity choice.
+        """
+        import random
+        from prompts.prompts_posts.god_prompt import HINDU_DEITIES, generate_god_scene_prompt
+        
+        if not deity_name:
+            return generate_god_scene_prompt()
+
+        matched_god = None
+        for g in HINDU_DEITIES:
+            if deity_name.lower() in g.lower():
+                matched_god = g
+                break
+        
+        if not matched_god:
+            # If no deity matched, treat deity_name as a custom prompt and return it directly
+            return deity_name
+
+        god_name = matched_god
+        
+        # Monkeypatch random.choice temporarily to force selecting the matched deity
+        old_choice = random.choice
+        try:
+            random.choice = lambda x: god_name if isinstance(x, list) and len(x) > 0 and x[0] in HINDU_DEITIES else old_choice(x)
+            system_prompt = generate_god_scene_prompt()
+        finally:
+            random.choice = old_choice
+            
+        return system_prompt
 
     def create_image(self, prompt: str, output_path: str = None) -> str:
         """
@@ -232,6 +265,52 @@ class ImageUploadPipeline:
 
         return insta_posted
 
+    def generate_and_process_llm(self, deity_name: str = None, caption_override: str = None, db_id: int = None) -> bool:
+        """
+        Queries the LLM using generate_god_scene_prompt (post=True), generates the image,
+        uploads it to storage, publishes to Instagram, and registers database values.
+        """
+        logger.info(f"Querying LLM to generate prompt and caption for deity: {deity_name or 'Random'}")
+        try:
+            from LLM.model import LLMModel
+            
+            system_prompt = self.get_god_prompt_for_deity(deity_name)
+            model = LLMModel(system_prompt="You are a helpful assistant.", provider="gemini")
+            
+            logger.info("Invoking LLM response for post (post=True)...")
+            response = model.response_llm(system_prompt=system_prompt, post=True)
+            
+            if isinstance(response, str):
+                response_data = json.loads(response)
+            else:
+                response_data = response
+
+            generated_prompt = response_data.get("prompt")
+            generated_caption = caption_override if caption_override else response_data.get("description")
+            
+            if not generated_prompt:
+                logger.error("LLM did not return a valid prompt.")
+                return False
+
+            logger.info(f"LLM Generated Prompt: {generated_prompt}")
+            logger.info(f"LLM Generated Caption: {generated_caption}")
+
+            # Generate the image using the detailed generated prompt
+            generated_file = self.create_image(generated_prompt)
+            if not generated_file:
+                return False
+
+            # Publish the generated image and save metadata
+            return self.run_pipeline_for_single_image(
+                image_path=generated_file,
+                caption=generated_caption,
+                prompt=deity_name or generated_prompt,
+                db_id=db_id
+            )
+        except Exception as e:
+            logger.error(f"Failed to generate and process image via LLM: {e}")
+            return False
+
     def process_database_queue(self) -> bool:
         """
         Processes all pending image prompts in the database images_on_demand table.
@@ -250,11 +329,9 @@ class ImageUploadPipeline:
 
         for row in pending:
             try:
-                img_path = self.create_image(row.prompt)
-                if img_path:
-                    caption = f"{row.prompt} #ai #generated #art"
-                    if self.run_pipeline_for_single_image(img_path, caption, row.prompt, row.id):
-                        success_count += 1
+                # We use the row.prompt as the guide deity for LLM prompt generation
+                if self.generate_and_process_llm(deity_name=row.prompt, db_id=row.id):
+                    success_count += 1
             except Exception as e:
                 logger.error(f"Error processing row ID {row.id} from queue: {e}")
 
@@ -266,27 +343,21 @@ class ImageUploadPipeline:
         """
         logger.info("=== Starting Image Pipeline Execution ===")
 
-        if not prompt and not image_path:
-            if self.use_database:
-                return self.process_database_queue()
-            logger.error("No inputs provided, and Database is disabled. Nothing to do.")
-            return False
-
-        if prompt:
-            try:
-                generated_path = self.create_image(prompt)
-                if generated_path:
-                    final_caption = caption if caption else f"{prompt} #ai #generated #art"
-                    return self.run_pipeline_for_single_image(generated_path, final_caption, prompt)
-            except Exception as e:
-                logger.error(f"Failed to generate/process prompt: {e}")
-                return False
-
+        # Case 1: Existing image file path or URL
         if image_path:
             final_caption = caption if caption else "Check this out! #ai #image"
             return self.run_pipeline_for_single_image(image_path, final_caption, prompt or "")
 
-        return False
+        # Case 2: Database Queue Processing (if no specific prompt is passed and DB is enabled)
+        if not prompt and self.use_database:
+            pending = self.db.get_pending_images()
+            if pending:
+                return self.process_database_queue()
+            else:
+                logger.info("Database queue is empty. Falling back to a random LLM generation...")
+
+        # Case 3: Prompt-based or random LLM Generation
+        return self.generate_and_process_llm(deity_name=prompt, caption_override=caption)
 
 if __name__ == "__main__":
     import argparse

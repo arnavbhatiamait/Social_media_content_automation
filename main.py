@@ -35,15 +35,18 @@ def main():
     logger.info(f"Main Orchestrator Started — Type: {args.type.upper()}")
     logger.info("=" * 60)
     
-    if args.type=="both":
+    image_success = True
+    video_success = True
+
+    if args.type == "both":
         from Piepline.imagePipeline import ImageUploadPipeline
         logger.info("Initializing Image Upload Pipeline...")
-        pipeline = ImageUploadPipeline(
+        image_pipeline = ImageUploadPipeline(
             Storage=not args.no_storage,
             Database=not args.no_db,
             generator_type=args.generator
         )
-        success = pipeline.run(
+        image_success = image_pipeline.run(
             prompt=args.prompt,
             image_path=args.image,
             caption=args.caption
@@ -51,19 +54,18 @@ def main():
         from Piepline.VideoPipeline import VideoUploadPipeline
         logger.info("Initializing Video Upload Pipeline...")
         tags_list = [t.strip() for t in args.tags.split(",")] if args.tags else None
-        pipeline = VideoUploadPipeline(
+        video_pipeline = VideoUploadPipeline(
             Storage=not args.no_storage,
             Database=not args.no_db
         )
-        success = pipeline.run(
+        video_success = video_pipeline.run(
             prompt=args.prompt,
             video_path=args.video,
             title=args.title,
             caption=args.caption,
             tags=tags_list
         )
-
-
+        success = image_success and video_success
 
     elif args.type == "image":
         from Piepline.imagePipeline import ImageUploadPipeline
@@ -78,6 +80,7 @@ def main():
             image_path=args.image,
             caption=args.caption
         )
+        image_success = success
     else:
         from Piepline.VideoPipeline import VideoUploadPipeline
         logger.info("Initializing Video Upload Pipeline...")
@@ -93,13 +96,22 @@ def main():
             caption=args.caption,
             tags=tags_list
         )
+        video_success = success
 
-    if success:
-        logger.info(f"Pipeline executed successfully for type: {args.type}")
-        print(f"\n{args.type.capitalize()} pipeline execution completed successfully!")
+    if args.type == "both":
+        if image_success and video_success:
+            logger.info("Both image and video pipelines executed successfully.")
+            print("\nBoth pipelines execution completed successfully!")
+        else:
+            logger.error(f"Pipeline execution finished with partial or total failure. Image success: {image_success}, Video success: {video_success}")
+            print(f"\nPipeline execution finished: Image pipeline success={image_success}, Video pipeline success={video_success}")
     else:
-        logger.error(f"Pipeline execution failed for type: {args.type}")
-        print(f"\n{args.type.capitalize()} pipeline execution failed or nothing to process.")
+        if success:
+            logger.info(f"Pipeline executed successfully for type: {args.type}")
+            print(f"\n{args.type.capitalize()} pipeline execution completed successfully!")
+        else:
+            logger.error(f"Pipeline execution failed for type: {args.type}")
+            print(f"\n{args.type.capitalize()} pipeline execution failed or nothing to process.")
 
 if __name__ == "__main__":
     main()
