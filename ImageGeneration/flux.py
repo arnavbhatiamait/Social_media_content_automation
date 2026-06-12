@@ -71,4 +71,5 @@ class FluxImageGen:
 
 if __name__ == "__main__":
     flux_gen = FluxImageGen()
-    flux_gen.generate_image_normal("A serene landscape with mountains and a river, in the style of a digital painting")
+    # flux_gen.generate_image_normal("A serene landscape with mountains and a river, in the style of a digital painting")
+    flux_gen.generate_images_reels(["A futuristic cityscape at night, with neon lights and flying cars, in the style of cyberpunk art","A close-up portrait of a person with vibrant, colorful makeup and intricate patterns, in the style of surrealism"])
