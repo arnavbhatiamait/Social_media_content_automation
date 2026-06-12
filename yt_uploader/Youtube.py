@@ -1,23 +1,24 @@
 import os
-import pickle
+import json
 from datetime import datetime, timezone
 from typing import Optional
 
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
+from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from logs_setup.logger import Logger
-logger=Logger(name="YoutubeUploader",log_file="logs/youtube_uploader.log").get_logger()
+logger = Logger(name="YoutubeUploader", log_file="logs/youtube_uploader.log").get_logger()
 
 SCOPES = [
-    "https://www.googleapis.com/auth/youtube.upload",
-    "https://www.googleapis.com/auth/youtube.force-ssl",  # required for community posts
+    "https://www.googleapis.com/auth/youtube",
 ]
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TOKEN_PATH = os.path.join(BASE_DIR, "token.pickle")
+# Paths are at project root (one level above this file)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOKEN_PATH = os.path.join(BASE_DIR, "token.json")
 CLIENT_SECRET_PATH = os.path.join(BASE_DIR, "client_secret.json")
 
 
@@ -34,17 +35,20 @@ class YoutubeUploader:
         """Authenticate and return an authorised YouTube API client."""
         credentials = None
         logger.info("Authenticating with YouTube API")
+
+        # Load existing token (JSON format, as saved by yt_auth.py)
         if os.path.exists(TOKEN_PATH):
-            with open(TOKEN_PATH, "rb") as token:
-                credentials = pickle.load(token)
+            credentials = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
         else:
             logger.warning("No existing token found, starting new authentication flow")
 
         if not credentials or not credentials.valid:
-
             if credentials and credentials.expired and credentials.refresh_token:
                 logger.info("Refreshing expired credentials")
                 credentials.refresh(Request())
+                # Persist refreshed token
+                with open(TOKEN_PATH, "w") as f:
+                    f.write(credentials.to_json())
             else:
                 logger.info("Running OAuth flow to obtain new credentials")
                 flow = InstalledAppFlow.from_client_secrets_file(
@@ -52,9 +56,9 @@ class YoutubeUploader:
                     SCOPES,
                 )
                 credentials = flow.run_local_server(port=0)
+                with open(TOKEN_PATH, "w") as f:
+                    f.write(credentials.to_json())
 
-            with open(TOKEN_PATH, "wb") as token:
-                pickle.dump(credentials, token)
         logger.info("Authentication successful")
         return build("youtube", "v3", credentials=credentials)
 
