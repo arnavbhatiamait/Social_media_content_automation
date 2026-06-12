@@ -26,7 +26,7 @@ os.makedirs("images", exist_ok=True)
 class ImageGen:
     def __init__(self):
         self.model = ImageGenerationModel.from_pretrained(
-    "imagen-4.0-generate-001"
+    "imagen-4.0-fast-generate-001"
     )
         logger.info(f"Model used {self.model}")
 
@@ -54,6 +54,7 @@ class ImageGen:
         return [f"images/generated_image_{i}.png" for i in range(1,2)]
     
     def generate_multiple_images(self,prompt:str,number_of_images:int):
+        logger.info(f"Generating {number_of_images} images for prompt: {prompt}")
         images = self.model.generate_images(
             prompt=prompt,
             number_of_images=number_of_images,
@@ -62,13 +63,18 @@ class ImageGen:
             safety_filter_level="block_some"
         )   
         for i,image in enumerate(images,1):
-            image.save(
-                f"images/generated_images_{i}.png",
-                include_generation_parameters=False
-            )
+            logger.info(f"Saving image {i} for prompt: {prompt}, image: {image}")
+            try:
+                image.save(
+                    f"images/generated_images_{i}.png",
+                    include_generation_parameters=False
+                )
+            except Exception as e:
+                logger.error(f"Error occurred while saving image {i} for prompt: {prompt}, image: {image}, error: {e}")
         return [f"images/generated_images_{i}.png" for i in range(1,number_of_images+1)]
     
     async def generate_image_async(self,prompt:str,number_of_images:int):
+        logger.info(f"Generating {number_of_images} async images for prompt: {prompt}")
         images = await self.model.agenerate_images(
             prompt=prompt,
             number_of_images=number_of_images,
@@ -77,11 +83,15 @@ class ImageGen:
             safety_filter_level="block_some"
         )   
         for i,image in enumerate(images,1):
-            image.save(
-                f"images/generated_image_async_{i}.png",
-                include_generation_parameters=False
-            )
-    
+            logger.info(f"Saving async image {i} for prompt: {prompt}, image: {image}")
+            try:
+                image.save(
+                    f"images/generated_image_async_{i}.png",
+                    include_generation_parameters=False
+                )
+            except Exception as e:
+                logger.error(f"Error occurred while saving async image {i} for prompt: {prompt}, image: {image}, error: {e}")
+
         return [f"images/generated_image_async_{i}.png" for i in range(1,number_of_images+1)]
     
 
@@ -91,6 +101,7 @@ class ImageGen:
         prompt: str,
         number_of_images: int
     ):
+        logger.info(f"Generating {number_of_images} async stream images for prompt: {prompt}")
         output_dir = Path("images")
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -98,12 +109,14 @@ class ImageGen:
         idx = 0
 
         async for image in self.model.agenerate_images_stream(
+            
             prompt=prompt,
             number_of_images=number_of_images,
             # image_size="1K",
             aspect_ratio="1:1",
             safety_filter_level="block_some",
         ):
+            logger.info(f"Received streamed image {idx} for prompt: {prompt}, image: {image}")
             file_path = output_dir / f"generated_image_{idx}.png"
 
             image.save(
@@ -113,7 +126,7 @@ class ImageGen:
 
             generated_files.append(str(file_path))
             idx += 1
-
+            logger.info(f"Saved streamed image {idx} for prompt: {prompt}, file_path: {file_path}")
         return generated_files
 
 if __name__ == "__main__":
