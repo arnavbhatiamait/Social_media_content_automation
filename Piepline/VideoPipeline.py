@@ -223,7 +223,7 @@ class VideoUploadPipeline:
                             raise RuntimeError(f"Vertex AI Imagen (iamagegen.py) failed to generate/save image for scene {scene_num}")
                         
                         if idx < len(prompts) - 1:
-                            sleep_time = float(os.getenv("IMAGE_GEN_SLEEP", "12.0"))
+                            sleep_time = float(os.getenv("IMAGE_GEN_SLEEP", "100.0"))
                             logger.info(f"Sleeping for {sleep_time} seconds to avoid Vertex AI Imagen rate limits...")
                             time.sleep(sleep_time)
                     return renamed_paths

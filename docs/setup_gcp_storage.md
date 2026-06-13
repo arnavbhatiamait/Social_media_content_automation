@@ -92,8 +92,7 @@ If Hugging Face models fail or hit rate limits, the pipeline falls back to **Goo
 
 *   New GCP projects often have a strict online prediction quota of **5 Requests Per Minute (RPM)**.
 *   To prevent `429 Quota exceeded` errors when generating a 5-scene video package, you must configure a sleep delay between requests in your `.env`:
-    ```env
-    # Recommended: 12.0 seconds (Spreads 5 requests evenly over 60 seconds)
-    IMAGE_GEN_SLEEP=12.0
+    # Recommended: 100.0 seconds (Avoids Vertex AI online prediction rate limit spikes)
+    IMAGE_GEN_SLEEP=100.0
     ```
 

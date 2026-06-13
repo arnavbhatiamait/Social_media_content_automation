@@ -2,7 +2,7 @@ import os
 import sys
 import argparse
 from dotenv import load_dotenv
-
+from time import sleep
 # Ensure project root is in sys.path
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 if PROJECT_ROOT not in sys.path:
@@ -51,6 +51,7 @@ def main():
             image_path=args.image,
             caption=args.caption
         )
+        sleep(100)
         from Piepline.VideoPipeline import VideoUploadPipeline
         logger.info("Initializing Video Upload Pipeline...")
         tags_list = [t.strip() for t in args.tags.split(",")] if args.tags else None
