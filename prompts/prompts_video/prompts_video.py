@@ -621,3 +621,106 @@ def get_prompt():
     return PROMPT
 
 print(get_prompt())
+
+def generate_god_scene_prompt():
+    return {
+        "system_prompt": get_prompt(),
+        "human_prompt": """Please generate a json with the following structure and I am attaching an example with this 
+         
+        
+        json structure:
+        {
+    "title": "Mahadev: The Eternal Source of Cosmic Transformation",
+    "deity": "Lord Shiva",
+    "description": "Step into the mystical heights of Mount Kailash and behold the infinite majesty of Lord Shiva, known across the cosmos as Mahadev. Witness the calm before the cosmic storm as the ultimate protector and transformer balances the universe through profound meditation and divine power. Discover the ancient symbols, ethereal realms, and timeless wisdom of the supreme yogi in this cinematic documentary journey. #Mahadev #LordShiva #HinduMythology #SpiritualJourney #CosmicEnergy #ShivaTandava #DivinePower",
+    "seo_keywords": [
+        "Lord Shiva",
+        "Mahadev",
+        "Mount Kailash",
+        "Hindu Mythology Documentary",
+        "Shiva Cosmic Transformation",
+        "Trishul and Damaru",
+        "Spiritual Meditation",
+        "Vedic Traditions"
+    ],
+    "hashtags": [
+        "Mahadev",
+        "LordShiva",
+        "HinduMythology",
+        "CosmicEnergy",
+        "SpiritualJourney",
+        "HarHarMahadev"
+    ],
+    "duration_seconds": 60,
+    "audio_segments": [
+        {
+            "scene": 1,
+            "title": "The Silent Descent",
+            "text": "Deep within the frozen, timeless peaks of Mount Kailash, an ancient stillness grips the earth. Here, wrapped in sacred mist, manifests the supreme consciousness: Mahadev, the great lord of transformation.",
+            "start_time_seconds": 0,
+            "end_time_seconds": 12,
+            "duration_seconds": 12
+        },
+        {
+            "scene": 2,
+            "title": "The Yogi's Aura",
+            "text": "His blue-grey skin is coated in sacred ash, a stark testament to the transient nature of existence. With a calm, meditative focus that stabilizes the shifting dimensions, his piercing third eye remains closed, holding back an infinite well of cosmic energy.",
+            "start_time_seconds": 12,
+            "end_time_seconds": 24,
+            "duration_seconds": 12
+        },
+        {
+            "scene": 3,
+            "title": "Lord of the Cosmic Balance",
+            "text": "Upon his head rests the silver crescent moon, anchoring the flow of time itself. As the holy waters of the River Ganga cascade from his matted locks, the majestic bull Nandi watches over his master's eternal, transcendent domain.",
+            "start_time_seconds": 24,
+            "end_time_seconds": 36,
+            "duration_seconds": 12
+        },
+        {
+            "scene": 4,
+            "title": "The Weapon of Righteousness",
+            "text": "Suddenly, a profound shift reverberates through space. In his hands, he raises the sacred Trishul, the cosmic trident that shatters illusion, while a mystical snake moves gently around his neck, symbolizing absolute mastery over death.",
+            "start_time_seconds": 36,
+            "end_time_seconds": 48,
+            "duration_seconds": 12
+        },
+        {
+            "scene": 5,
+            "title": "The Ultimate Grace",
+            "text": "As the heavens part, a magnificent divine halo illuminates the mountaintop. With infinite compassion, Bholenath extends his hand in an eternal blessing, sending waves of peace and transformation across the material world.",
+            "start_time_seconds": 48,
+            "end_time_seconds": 60,
+            "duration_seconds": 12
+        }
+    ],
+    "image_prompts": [
+        {
+            "scene": 1,
+            "prompt": "An epic, photorealistic digital painting capturing Lord Shiva, reverently known as Mahadev, manifesting his divine presence on the snowy peaks of Mount Kailash. The atmosphere is saturated with a thick, swirling sacred mist under the breathtaking hues of a golden sunrise. The deity stands in a powerful, commanding stance, framed from an ultra low angle heroic shot. His iconic blue-grey skin and ash-covered body contrast brilliantly against a vivid gold and crimson color palette. Swirling golden clouds and ancient pillars materialize faintly in the background. Masterful volumetric god rays stream through the fog, casting cinematic rim light and rich, dramatic shadows across the mountain peaks. Rendered with an anamorphic cinematic depth of field and hyper-realistic micro-textures showcasing the fine grains of snow and stone. Ultra detailed, masterpiece, award winning photography, volumetric lighting, cinematic composition, ultra realistic textures, mythological epic, 8k, HDR, IMAX quality, divine atmosphere."
+        },
+        {
+            "scene": 2,
+            "prompt": "An ultra-realistic, cinematic movie frame of Lord Shiva, known as Bholenath, portraying his deeply calm and meditative personality. Captured in a waist up portrait frame using a high-end anamorphic lens, the deity's face shows an expression of supreme, transcendent focus. His long matted hair flows gently in the wind, adorned with the glowing silver crescent moon. A soft cosmic energy glow illuminates his third eye and the tiger skin garment draped over his muscular form. The background reveals intricate details of mountain ranges, floating islands, and temple bells obscured by a heavy divine fog. The color palette shifts to a striking balance of gold and crimson with deep obsidian shadows. Sharp, volumetric god rays pierce the haze, highlighting the micro-textures of the ash on his divine skin. Ultra detailed, masterpiece, award winning photography, volumetric lighting, cinematic composition, ultra realistic textures, mythological epic, 8k, HDR, IMAX quality, divine atmosphere."
+        },
+        {
+            "scene": 3,
+            "prompt": "A majestic, fine art masterpiece depicting Lord Shiva, known across the cosmos as Neelkanth, showcasing his vast spiritual domain. The deity is positioned in a serene full body pose, sitting on a rocky ledge overlooking a cascading sacred waterfall that morphs into a vibrant sacred river. From his long matted hair, the river Ganga flows outward into the environment. His divine vehicle, the massive white bull Nandi, rests loyally by his side. The camera angle is a wide cinematic view, establishing an immense scale between the deity and the sweeping Himalayan cave system. The setting is bathed in the dramatic highlights of a solar eclipse, casting a rare, eerie golden glow combined with deep, rich shadows. Spiritual energy waves and floating lotus flowers accentuate the mystical landscape. Ultra detailed, masterpiece, award winning photography, volumetric lighting, cinematic composition, ultra realistic textures, mythological epic, 8k, HDR, IMAX quality, divine atmosphere."
+        },
+        {
+            "scene": 4,
+            "prompt": "An explosive, dynamic action camera shot of Lord Shiva, known as Rudra, performing a legendary mythological act of power. The deity stands in an intense, powerful stance, wielding the sacred Trishul which crackles with raw, celestial energy, while his other hand commands the Damaru drum. A massive cobra snake is wrapped securely around his neck, its scales catching the sharp backlighting. The environment is an awe-inspiring, chaotic storm of monsoon rain and celestial rain, with heavy thunderclouds lit from within by cosmic energy. The composition utilizes a dramatic low angle perspective, emphasizing the deity's immense scale. The color palette explodes with saturated gold and crimson tones against dark, stormy blues. Intricate background details include shattered floating rocks, ancient architecture, and swirling golden particles captured with sharp depth of field. Ultra detailed, masterpiece, award winning photography, volumetric lighting, cinematic composition, ultra realistic textures, mythological epic, 8k, HDR, IMAX quality, divine atmosphere."
+        },
+        {
+            "scene": 5,
+            "prompt": "The epic cinematic finale, a photorealistic digital painting of Lord Shiva, affectionately known as Shankara, granting a transcendent blessing to humanity. The deity is captured in a magnificent, standing blessing devotees stance, his right hand extended forward emitting a radiant divine halo of pure golden light. The camera composition is a masterfully balanced full body shot with an expansive, wide angle lens. The entire atmosphere is filled with glowing dust, fireflies, and floating petals under the ethereal light of a cosmic dawn. The rich background displays a celestial throne room melting into a star-filled universe with vibrant constellations, nebulae, and sacred lamps. The color palette reaches its peak grandeur with shimmering gold, crimson, and deep cosmic violet hues. Hyper-realistic textures detail the fine threads of his rudraksha malas and the stone patterns of Mount Kailash. Ultra detailed, masterpiece, award winning photography, volumetric lighting, cinematic composition, ultra realistic textures, mythological epic, 8k, HDR, IMAX quality, divine atmosphere."
+        }
+    ]
+}
+
+make sure to generate a detailed prompt and description based on the above system prompt. The 'prompt' should be concise and actionable for an image generation model, while the 'description' should provide a rich, detailed explanation of the scene, including elements, composition, and artistic style. Ensure the output is a properly formatted JSON that can be easily parsed.
+           """
+
+
+        
+    }

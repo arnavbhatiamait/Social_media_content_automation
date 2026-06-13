@@ -364,3 +364,11 @@ def generate_god_scene_prompt():
 
     return prompt_2
 print(generate_god_scene_prompt())
+
+def full_prompts_llm():
+    return {
+        "system_prompt":generate_god_scene_prompt(),
+        "human_prompt":"""
+                         Please generate a JSON with keys 'prompt' and 'description' for an image generation model based on the above system prompt. The 'prompt' should be a concise description suitable for input to an image generation model, while the 'description' should provide a more detailed explanation of the scene, including elements, composition, and artistic style. Ensure the JSON is properly formatted and parsable.
+    """
+    }
