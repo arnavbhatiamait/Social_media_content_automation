@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import asyncio
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
@@ -195,6 +196,11 @@ class VideoUploadPipeline:
                     image.save(new_path)
                     renamed_paths.append(new_path)
                     logger.info(f"Saved fallback SDXL image for scene {scene_num} to: {new_path}")
+                    
+                    if idx < len(prompts) - 1:
+                        sleep_time = float(os.getenv("IMAGE_GEN_SLEEP", "5.0"))
+                        logger.info(f"Sleeping for {sleep_time} seconds to avoid SDXL rate limits...")
+                        time.sleep(sleep_time)
                 return renamed_paths
             except Exception as sde:
                 logger.error(f"SDXL fallback also failed: {sde}. Falling back to Vertex AI Imagen...")
@@ -215,6 +221,11 @@ class VideoUploadPipeline:
                             logger.info(f"Saved fallback image for scene {scene_num} to: {new_path}")
                         else:
                             raise RuntimeError(f"Vertex AI Imagen (iamagegen.py) failed to generate/save image for scene {scene_num}")
+                        
+                        if idx < len(prompts) - 1:
+                            sleep_time = float(os.getenv("IMAGE_GEN_SLEEP", "12.0"))
+                            logger.info(f"Sleeping for {sleep_time} seconds to avoid Vertex AI Imagen rate limits...")
+                            time.sleep(sleep_time)
                     return renamed_paths
                 except Exception as fe:
                     logger.error(f"Fallback Imagen generation also failed: {fe}")

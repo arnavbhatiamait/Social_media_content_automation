@@ -163,6 +163,10 @@ INSTAGRAM_ACCOUNT_ID=your_instagram_business_account_id
 
 # Subtitle generation flag for video pipeline (TRUE/FALSE)
 ADD_SUBTITLES=FALSE
+
+# Optional: Delay in seconds between batch image generation (to avoid rate limits / 429 errors)
+# Defaults: 12.0s for Vertex AI Imagen, 5.0s for Hugging Face
+IMAGE_GEN_SLEEP=5.0
 ```
 
 ### 4. Running the Pipeline

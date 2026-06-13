@@ -1,4 +1,5 @@
 import os
+import time
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 from datetime import datetime
@@ -64,6 +65,11 @@ class FluxImageGen:
             image = response
             image.save(f"reels_images/generated_image_reels_{idx}.png")
             logger.info(f"Saved reels image {idx} for prompt: {prompt} at reels_images/generated_image_reels_{idx}.png")
+            
+            if idx < len(prompts) - 1:
+                sleep_time = float(os.getenv("IMAGE_GEN_SLEEP", "5.0"))
+                logger.info(f"Sleeping for {sleep_time} seconds to avoid Hugging Face rate limits...")
+                time.sleep(sleep_time)
         return [f"reels_images/generated_image_reels_{idx}.png" for idx in range(len(prompts))]
 
 if __name__ == "__main__":

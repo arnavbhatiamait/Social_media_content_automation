@@ -53,6 +53,13 @@ Open your `.env` file in the root of the project and paste your token under the 
 HF_TOKEN=
 ```
 
+### ⏳ Rate Limiting Delay (Optional)
+To avoid hitting Hugging Face Serverless API rate limits / concurrent requests errors when generating 5 images in rapid succession for a video, you can set the sleep time (in seconds) between generations:
+```env
+# Default: 5.0 seconds for Hugging Face models
+IMAGE_GEN_SLEEP=5.0
+```
+
 ---
 
 ## 🤖 Model Specifications

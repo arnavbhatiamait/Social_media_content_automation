@@ -83,3 +83,17 @@ GOOGLE_TTS_SAMPLE_RATE=24000
 *   **`GOOGLE_TTS_LANGUAGE_CODE`**: The language locale (e.g., `en-US` for English, `hi-IN` for Hindi, `es-ES` for Spanish).
 *   **`GOOGLE_TTS_VOICE_NAME`**: The specific voice model (e.g., `hi-IN-Standard-A`, `en-US-Journey-F`, `en-IN-Wavenet-B`). You can query the available voices using Google's API documentation or the `list_voices()` function in the class.
 *   **`GOOGLE_TTS_SAMPLE_RATE`**: The audio quality frequency (defaults to `24000` Hz).
+
+---
+
+## 🤖 Vertex AI Imagen Fallback & Quota Rates (Optional)
+
+If Hugging Face models fail or hit rate limits, the pipeline falls back to **Google Cloud Vertex AI Imagen** (`imagen-4.0-generate-001`).
+
+*   New GCP projects often have a strict online prediction quota of **5 Requests Per Minute (RPM)**.
+*   To prevent `429 Quota exceeded` errors when generating a 5-scene video package, you must configure a sleep delay between requests in your `.env`:
+    ```env
+    # Recommended: 12.0 seconds (Spreads 5 requests evenly over 60 seconds)
+    IMAGE_GEN_SLEEP=12.0
+    ```
+
