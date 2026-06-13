@@ -71,12 +71,24 @@ graph TD
 
 ---
 
-## 🖼️ Sample Generated Output
+## 🖼️ Sample Generated Outputs
 
-Below is an example of a high-resolution mythological scene generated automatically by the pipeline using the primary **FLUX.1-schnell** image generation component:
+### 📸 Image Generation (Flux.1-schnell)
+Below is an example of a high-resolution mythological scene generated automatically by the pipeline:
 
 <p align="center">
   <img src="docs/assets/sample_output_shiva.png" alt="Sample Shiva Output" width="60%" style="border-radius: 8px; border: 1px solid #444;">
+</p>
+
+### 🎥 Video Generation (YouTube Shorts)
+Watch a sample documentary video generated fully automatically (narration, images, background music, subtitles, and intro titles) and published to YouTube Shorts:
+
+<p align="center">
+  <a href="https://youtube.com/shorts/vMVLHVE9kus?si=c0W0izpZrPPC4WKy" target="_blank">
+    <img src="https://img.youtube.com/vi/vMVLHVE9kus/hqdefault.jpg" alt="Watch the Sample Video on YouTube Shorts" width="300" style="border-radius: 8px; border: 1px solid #444;">
+  </a>
+  <br>
+  <a href="https://youtube.com/shorts/vMVLHVE9kus?si=c0W0izpZrPPC4WKy">▶️ Watch on YouTube Shorts</a>
 </p>
 
 ---
