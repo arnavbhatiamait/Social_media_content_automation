@@ -116,3 +116,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+    if os.getenv("IS_DOCKER","False").lower() == "true":
+        logger.info("Running in Docker environment. Sleeping for extended duration to keep the container alive.")
+        logger.info(f"Sleeping for {os.getenv('SLEEP_TIME_DOCKER', 18000)} seconds (default 5 hours).")
+        sleep(os.getenv("SLEEP_TIME_DOCKER", 18000))  # Sleep for 5 hours by default
+        

@@ -178,6 +178,8 @@ ADD_SUBTITLES=FALSE
 
 # Defaults: 100.0s for Vertex AI Imagen, 5.0s for Hugging Face
 IMAGE_GEN_SLEEP=100.0
+SLEEP_TIME_DOCKER=18000
+IS_DOCKER=False
 ```
 
 ### 4. Running the Pipeline
