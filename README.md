@@ -220,6 +220,7 @@ To configure all external services, credentials, and cron jobs, follow the step-
 4.  📺 **[YouTube Data API Setup](docs/setup_youtube.md)**: Setup OAuth Consent, client secrets, and authorize locally to obtain `token.json`.
 5.  ⚙️ **[GitHub Actions & Secrets Setup](docs/setup_github_actions.md)**: Set up cron scheduling and securely pass JSON keys/secrets inside workflows.
 6.  ✍️ **[Customizing Prompts & Queue](docs/customizing_prompts.md)**: Learn how the prompt queues are processed and how to add custom deities/visual parameters.
+7.  🐳 **[Docker Environment Setup](docs/setup_docker.md)**: Build and run the entire automation pipeline within a self-contained Docker container.
 
 ---
 
