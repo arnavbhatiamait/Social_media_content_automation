@@ -45,7 +45,9 @@ An end-to-end, production-ready AI pipeline that orchestrates LLMs, Image Genera
 graph TD
     A[Start Pipeline / Cron] --> B{Choose Type}
     B -- Video Pipeline --> C[Query Gemini for Script & Prompts]
-    C --> D[Generate Assets in Parallel]
+    C --> VEO_CHECK{Veo Enabled?}
+    
+    VEO_CHECK -- No --> D[Generate Assets in Parallel]
     D --> E[Image Generation: HF Flux / SDXL / Vertex Imagen]
     D --> F[Audio Generation: Google Cloud TTS]
     E --> G[FFmpeg Video Assembly]
@@ -53,6 +55,9 @@ graph TD
     G --> H[Render Subtitles SRT & Burn]
     H --> I[Add Background Music & Intro Titles]
     I --> J[Save local final_video.mp4]
+    
+    VEO_CHECK -- Yes --> VEO_GEN[Generate Video: Google Veo API]
+    VEO_GEN --> J
     
     B -- Image Pipeline --> K[Image Gen: HF Flux / SDXL / Vertex Imagen]
     K --> L[Save local final_image.png]
@@ -180,6 +185,9 @@ ADD_SUBTITLES=FALSE
 IMAGE_GEN_SLEEP=100.0
 SLEEP_TIME_DOCKER=18000
 IS_DOCKER=False
+
+# Google Veo Video Generation (set to True to enable Veo pipeline instead of 5-scene images/audio)
+VEO=False
 ```
 
 ### 4. Running the Pipeline

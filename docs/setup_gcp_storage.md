@@ -92,7 +92,30 @@ If Hugging Face models fail or hit rate limits, the pipeline falls back to **Goo
 
 *   New GCP projects often have a strict online prediction quota of **5 Requests Per Minute (RPM)**.
 *   To prevent `429 Quota exceeded` errors when generating a 5-scene video package, you must configure a sleep delay between requests in your `.env`:
+    ```env
     # Recommended: 100.0 seconds (Avoids Vertex AI online prediction rate limit spikes)
     IMAGE_GEN_SLEEP=100.0
     ```
+
+---
+
+## 📹 Google Veo Video Generation Setup (Optional)
+
+You can toggle the pipeline to generate cinematic video clips directly using Google's state-of-the-art **Veo** text-to-video model (`veo-2.0-generate-001`).
+
+### 1. Enable Vertex AI APIs
+Make sure you have enabled the **Vertex AI API** (`aiplatform.googleapis.com`) in your Google Cloud Console.
+
+### 2. IAM Permissions
+Ensure your GCP Service Account (configured via `gcp_secrets.json`) has the following role assigned:
+*   **Vertex AI User** (allows executing video predictions using Veo)
+
+### 3. Setup Environment Variables
+Configure the toggle inside your `.env` file (by default, `VEO` is set to `False`):
+```env
+# Set to True to enable Google Veo video generation pipeline
+VEO=True
+```
+If `VEO=True`, the orchestrator will generate a single video clip using the GenAI SDK client, completely bypassing the traditional 5-scene image/audio concatenation steps. If `False` or unset, the system will use the traditional pipeline.
+
 
