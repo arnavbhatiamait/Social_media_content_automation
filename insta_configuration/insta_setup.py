@@ -211,23 +211,63 @@ class InstaSetup:
             "access_token": self.access_token
         }
         try:
-            request = requests.post(
-            f"{self.base_url}/{self.ig_account_id}/media",
-            data=payload
-        )
-            logger.info("Carousel item created successfully")
-            return request.json()["id"]
+            res = requests.post(
+                f"{self.base_url}/{self.ig_account_id}/media",
+                data=payload
+            )
+            res.raise_for_status()
+            res_json = res.json()
+            if "id" not in res_json:
+                logger.error(f"Carousel item response missing ID: {res_json}")
+                return None
+            
+            creation_id = res_json["id"]
+            
+            # Wait for processing
+            status_url = (
+                f"{self.base_url}/{creation_id}"
+                f"?fields=status_code,status&access_token={self.access_token}"
+            )
+            for _ in range(6):
+                try:
+                    status_res = requests.get(status_url)
+                    if status_res.status_code == 200:
+                        status = status_res.json()
+                        status_code = status.get("status_code")
+                        if status_code == "FINISHED":
+                            logger.info(f"Carousel item {creation_id} finished processing.")
+                            break
+                        elif status_code == "ERROR":
+                            logger.error(f"Carousel item {creation_id} failed: {status}")
+                            return None
+                        elif status_code is None:
+                            logger.info("status_code field not present. Sleeping 3 seconds.")
+                            time.sleep(3)
+                            break
+                    else:
+                        logger.warning(f"Failed to check status: {status_res.text}")
+                except Exception as se:
+                    logger.warning(f"Error checking status: {se}")
+                time.sleep(3)
+                
+            return creation_id
         except Exception as e:
             logger.error(f"Carousel item creation failed {e}")
             return None
-    
 
     def publish_carousel(self, images, caption):
-        children = [self.create_carousel_item(i) for i in images]
+        children_ids = []
+        for img in images:
+            cid = self.create_carousel_item(img)
+            if cid:
+                children_ids.append(cid)
+                
+        if len(children_ids) < 2:
+            raise ValueError(f"Need at least 2 valid carousel items, found {len(children_ids)}")
 
         payload = {
             "media_type": "CAROUSEL",
-            "children": ",".join(children),
+            "children": ",".join(children_ids),
             "caption": caption,
             "access_token": self.access_token
         }
@@ -235,21 +275,30 @@ class InstaSetup:
             container = requests.post(
                 f"{self.base_url}/{self.ig_account_id}/media",
                 data=payload
-            ).json()
-            logger.info("Carousel container created")
+            )
+            container.raise_for_status()
+            container_json = container.json()
+            logger.info(f"Carousel parent container created: {container_json}")
+            parent_id = container_json["id"]
         except Exception as e:
             logger.error(f"Carousel container creation failed {e}")
+            raise
+
         try:
-            requests.post(
-            f"{self.base_url}/{self.ig_account_id}/media_publish",
-            data={
-                "creation_id": container["id"],
-                "access_token": self.access_token
-            }
+            result = requests.post(
+                f"{self.base_url}/{self.ig_account_id}/media_publish",
+                data={
+                    "creation_id": parent_id,
+                    "access_token": self.access_token
+                }
             )
-            logger.info("Carousel published successfully")
+            result.raise_for_status()
+            result_json = result.json()
+            logger.info(f"Carousel published successfully: {result_json}")
+            return result_json
         except Exception as e:
             logger.error(f"Carousel published failed {e}")
+            raise
 
 if __name__=="__main__":
     insta_setup = InstaSetup()

@@ -401,6 +401,65 @@ class VideoUploadPipeline:
             logger.error(f"Instagram Reel publishing failed: {e}")
             return None
 
+    def post_carousel_from_images(self, images_dir: str, caption: str) -> bool:
+        """
+        Uploads generated images in images_dir to GCS, generates signed URLs, and posts them as a carousel.
+        """
+        if not self.use_storage or not self.storage:
+            logger.warning("Storage option is disabled. Cannot upload images for carousel.")
+            return False
+
+        logger.info(f"Scanning {images_dir} for carousel images...")
+        if not os.path.exists(images_dir):
+            logger.error(f"Images directory {images_dir} does not exist.")
+            return False
+
+        # Gather scene images in sorted order (up to 10 items)
+        image_files = []
+        for i in range(1, 11):
+            img_path = os.path.join(images_dir, f"scene_{i}.png")
+            if os.path.exists(img_path):
+                image_files.append(img_path)
+            else:
+                break
+
+        if not image_files:
+            logger.warning("No scene images found to post as a carousel.")
+            return False
+
+        logger.info(f"Found {len(image_files)} images for carousel. Uploading to GCS...")
+        signed_urls = []
+        for img_path in image_files:
+            try:
+                blob_name = f"carousel/{os.path.basename(img_path)}"
+                # Upload to GCS
+                self.storage.upload_file(
+                    local_file_path=img_path,
+                    destination_blob_name=blob_name,
+                    make_public=False
+                )
+                # Generate signed URL (valid for 1 hour, enough for Meta to fetch)
+                signed_url = self.storage.get_signed_url(blob_name, expiration_time=3600)
+                signed_urls.append(signed_url)
+                logger.info(f"Uploaded {img_path} to GCS, signed URL: {signed_url[:50]}...")
+            except Exception as e:
+                logger.error(f"Failed to upload image {img_path} to storage: {e}")
+                return False
+
+        if len(signed_urls) < 2:
+            logger.warning("Need at least 2 images to create a carousel.")
+            return False
+
+        # Post carousel to Instagram
+        logger.info("Publishing carousel to Instagram...")
+        try:
+            result = self.insta.publish_carousel(images=signed_urls, caption=caption)
+            logger.info(f"Instagram carousel publish success: {result}")
+            return True
+        except Exception as e:
+            logger.error(f"Instagram carousel publishing failed: {e}")
+            return False
+
     def save_metadata(self, db_id: int | None, video_path: str, gcp_url: str | None, 
                       gcp_filename: str | None, signed_url: str | None, 
                       yt_video_id: str | None, insta_post_id: str | None,
@@ -561,6 +620,16 @@ class VideoUploadPipeline:
                     seo_keywords = data.get("seo_keywords", [])
                     hashtags = data.get("hashtags", [])
                     
+                    # Post generated scene images to Instagram as a carousel
+                    use_veo = os.getenv("VEO", "False").lower() in ("true", "1", "yes")
+                    if not use_veo:
+                        images_dir = os.path.abspath(os.path.join("output", "images"))
+                        insta_caption = f"{title}\n\n{caption}"
+                        if hashtags:
+                            formatted_hash = " ".join([h if h.startswith('#') else f"#{h}" for h in hashtags])
+                            insta_caption += f"\n\n{formatted_hash}"
+                        self.post_carousel_from_images(images_dir, insta_caption)
+
                     if self.run_pipeline_for_single_video(
                         video_path=video_path,
                         title=title,
@@ -621,6 +690,17 @@ class VideoUploadPipeline:
                 final_tags = tags if tags else data.get("hashtags", ["AI", "Shorts"])
                 seo_keywords = data.get("seo_keywords", [])
                 hashtags = data.get("hashtags", [])
+                
+                # Post generated scene images to Instagram as a carousel
+                use_veo = os.getenv("VEO", "False").lower() in ("true", "1", "yes")
+                if not use_veo:
+                    images_dir = os.path.abspath(os.path.join("output", "images"))
+                    insta_caption = f"{final_title}\n\n{final_caption}"
+                    if hashtags:
+                        formatted_hash = " ".join([h if h.startswith('#') else f"#{h}" for h in hashtags])
+                        insta_caption += f"\n\n{formatted_hash}"
+                    self.post_carousel_from_images(images_dir, insta_caption)
+
                 return self.run_pipeline_for_single_video(
                     video_path=generated_path,
                     title=final_title,
