@@ -76,6 +76,20 @@ graph TD
 
 ---
 
+## 🏗️ Infrastructure & Tech Stack
+
+### 🛠️ Technology Stack
+<p align="center">
+  <img src="docs/assets/tech%20stack.png" alt="Technology Stack" width="80%" style="border-radius: 8px; border: 1px solid #444;">
+</p>
+
+### 🌐 System Infrastructure
+<p align="center">
+  <img src="docs/assets/infra.png" alt="System Infrastructure" width="80%" style="border-radius: 8px; border: 1px solid #444;">
+</p>
+
+---
+
 ## 🖼️ Sample Generated Outputs
 
 ### 📸 Image Generation (Flux.1-schnell)
