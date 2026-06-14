@@ -401,9 +401,10 @@ class VideoUploadPipeline:
             logger.error(f"Instagram Reel publishing failed: {e}")
             return None
 
-    def post_carousel_from_images(self, images_dir: str, caption: str) -> bool:
+    def post_carousel_from_images(self, images_dir: str, caption: str, prompts: list[str] = None, model_used: str = "flux") -> bool:
         """
         Uploads generated images in images_dir to GCS, generates signed URLs, and posts them as a carousel.
+        Then, logs each image in the images_god database table.
         """
         if not self.use_storage or not self.storage:
             logger.warning("Storage option is disabled. Cannot upload images for carousel.")
@@ -452,13 +453,51 @@ class VideoUploadPipeline:
 
         # Post carousel to Instagram
         logger.info("Publishing carousel to Instagram...")
+        insta_posted = False
         try:
             result = self.insta.publish_carousel(images=signed_urls, caption=caption)
             logger.info(f"Instagram carousel publish success: {result}")
-            return True
+            insta_posted = True
         except Exception as e:
             logger.error(f"Instagram carousel publishing failed: {e}")
-            return False
+
+        # Record entries in the images_god database table
+        if self.use_database and self.db:
+            session = self.db._get_session()
+            if session:
+                try:
+                    from schemas_n_db.schema import Images_God
+                    for idx, img_path in enumerate(image_files):
+                        prompt_text = prompts[idx] if (prompts and idx < len(prompts)) else ""
+                        s_url = signed_urls[idx] if idx < len(signed_urls) else ""
+                        bucket_name = os.getenv("GCP_BUCKET_NAME", "databucket_reels_photos")
+                        blob_name = f"carousel/{os.path.basename(img_path)}"
+                        gcp_url = f"gs://{bucket_name}/{blob_name}"
+
+                        img_record = Images_God(
+                            url=img_path,
+                            gcp_bucket_url=gcp_url,
+                            gcp_filename=blob_name,
+                            prompt_used=prompt_text,
+                            model_used=model_used,
+                            insta_url=s_url,
+                            yt_url="",
+                            alt_text=caption[:255] if caption else "",
+                            description=caption or "",
+                            yt_posted=False,
+                            insta_posted=insta_posted,
+                            posted=insta_posted
+                        )
+                        session.add(img_record)
+                    session.commit()
+                    logger.info(f"Saved {len(image_files)} carousel image entries to Images_God database table.")
+                except Exception as db_err:
+                    session.rollback()
+                    logger.error(f"Failed to record carousel image entries in Images_God: {db_err}")
+                finally:
+                    session.close()
+
+        return insta_posted
 
     def save_metadata(self, db_id: int | None, video_path: str, gcp_url: str | None, 
                       gcp_filename: str | None, signed_url: str | None, 
@@ -628,7 +667,17 @@ class VideoUploadPipeline:
                         if hashtags:
                             formatted_hash = " ".join([h if h.startswith('#') else f"#{h}" for h in hashtags])
                             insta_caption += f"\n\n{formatted_hash}"
-                        self.post_carousel_from_images(images_dir, insta_caption)
+                        
+                        # Get prompts from data
+                        image_prompts = data.get("image_prompts", [])
+                        prompts_list = [item.get("prompt", "") for item in image_prompts]
+                        
+                        self.post_carousel_from_images(
+                            images_dir=images_dir,
+                            caption=insta_caption,
+                            prompts=prompts_list,
+                            model_used="flux"
+                        )
 
                     if self.run_pipeline_for_single_video(
                         video_path=video_path,
@@ -699,7 +748,17 @@ class VideoUploadPipeline:
                     if hashtags:
                         formatted_hash = " ".join([h if h.startswith('#') else f"#{h}" for h in hashtags])
                         insta_caption += f"\n\n{formatted_hash}"
-                    self.post_carousel_from_images(images_dir, insta_caption)
+                    
+                    # Get prompts from data
+                    image_prompts = data.get("image_prompts", [])
+                    prompts_list = [item.get("prompt", "") for item in image_prompts]
+                    
+                    self.post_carousel_from_images(
+                        images_dir=images_dir,
+                        caption=insta_caption,
+                        prompts=prompts_list,
+                        model_used="flux"
+                    )
 
                 return self.run_pipeline_for_single_video(
                     video_path=generated_path,

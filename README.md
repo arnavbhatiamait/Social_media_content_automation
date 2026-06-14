@@ -30,10 +30,10 @@ An end-to-end, production-ready AI pipeline that orchestrates LLMs, Image Genera
     *   Optionally uploads generated media assets to **Google Cloud Storage (GCS)**.
     *   Auto-generates secure signed URLs required for remote media publishing.
 *   **🚀 Automated Posting**:
-    *   **Instagram Graph API**: Automatically publishes Images, Reels, Stories, or Carousels.
+    *   **Instagram Graph API**: Automatically publishes Images, Reels, Stories, or Carousels. When running the traditional video pipeline (non-Veo), all generated scene images are automatically uploaded to GCS and posted as an Instagram Carousel alongside the video Reel.
     *   **YouTube Data API v3**: Automatically uploads YouTube Shorts, custom thumbnails, and schedules full-length videos.
 *   **🗄️ Database Tracking**:
-    *   Tracks queue execution and media metrics using a PostgreSQL Database (e.g., Neon DB) with SQLAlchemy.
+    *   Tracks queue execution and media metrics using a PostgreSQL Database (e.g., Neon DB) with SQLAlchemy, logging videos into the `videos_god` table and carousel/single images into the `images_god` table.
 *   **⏰ GitHub Actions Cron**:
     *   Configurable workflows to run pipelines twice a day automatically on a schedule.
 
