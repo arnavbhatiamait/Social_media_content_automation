@@ -62,12 +62,12 @@ graph TD
     B -- Image Pipeline --> K[Image Gen: HF Flux / SDXL / Vertex Imagen]
     K --> L[Save local final_image.png]
     
-    J & L --> M{Cloud Storage?}
+    J & L & E --> M{Cloud Storage?}
     M -- Yes --> N[Upload to Google Cloud Storage]
     N --> O[Generate GCS Signed URL]
     
-    J & L --> P{Publish Platforms}
-    O -- Signed URL --> Q[Instagram API: Reels / Posts]
+    J & L & E --> P{Publish Platforms}
+    O -- Signed URL --> Q[Instagram API: Reels / Posts / Carousel]
     J -- Local File --> R[YouTube API: Shorts / Videos]
     
     Q & R --> S[Update Database Logs]
