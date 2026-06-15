@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Next.js Frontend and API Router
+  website:
+    build:
+      context: ./website
+      dockerfile: Dockerfile
+    container_name: social_media_website
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./website/.env.local
+    environment:
+      # Map GCP credentials path to the mounted absolute path in the container
+      - GCP_CREDENTIALS_PATH=/gcp_secrets.json
+    volumes:
+      # Mount Google Cloud Credentials from root directory
+      - ./gcp_secrets.json:/gcp_secrets.json:ro
+    restart: unless-stopped
+    depends_on:
+      - db-local
+    networks:
+      - social_media_net
+
+  # Python Automation Pipeline (Orchestrator)
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: social_media_pipeline
+    env_file:
+      - .env
+    environment:
+      - IS_DOCKER=True
+      - GCP_CREDENTIALS_PATH=/gcp_secrets.json
+    volumes:
+      # Mount required GCP and YouTube authentication credentials
+      - ./gcp_secrets.json:/gcp_secrets.json:ro
+      - ./token.json:/app/token.json:ro
+      - ./client_secret.json:/app/client_secret.json:ro
+      # Mount directories for media inputs, outputs, and logging
+      - ./logs:/app/logs
+      - ./output:/app/output
+      - ./images:/app/images
+      - ./reels_images:/app/reels_images
+      - ./video_assembler:/app/video_assembler
+    restart: unless-stopped
+    depends_on:
+      - db-local
+    networks:
+      - social_media_net
+
+  # Local Postgres Database (Optional)
+  # To switch from the Neon DB to this local DB:
+  # 1. Update the DATABASE_URL in `.env` and `website/.env.local` to:
+  #    DATABASE_URL=postgresql://neondb_owner:local_postgres_password_123@db-local:5432/neondb?sslmode=disable
+  # 2. Database schemas will automatically be created on pipeline startup.
+  db-local:
+    image: postgres:15-alpine
+    container_name: social_media_db_local
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=neondb_owner
+      - POSTGRES_PASSWORD=local_postgres_password_123
+      - POSTGRES_DB=neondb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - social_media_net
+
+networks:
+  social_media_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
