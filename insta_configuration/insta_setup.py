@@ -290,6 +290,36 @@ class InstaSetup:
             logger.error(f"Carousel container creation failed: {error_msg}")
             raise
 
+        # Wait for the parent carousel container to process and be ready for publishing
+        logger.info(f"Waiting for parent carousel container {parent_id} to be ready...")
+        status_url = (
+            f"{self.base_url}/{parent_id}"
+            f"?fields=status_code,status&access_token={self.access_token}"
+        )
+        for attempt in range(6):  # Check status for up to 30 seconds
+            try:
+                status_res = requests.get(status_url)
+                if status_res.status_code == 200:
+                    status = status_res.json()
+                    status_code = status.get("status_code")
+                    logger.info(f"Attempt {attempt+1}: Parent container status_code={status_code}")
+                    if status_code == "FINISHED":
+                        logger.info("Parent container finished processing.")
+                        break
+                    elif status_code == "ERROR":
+                        logger.error(f"Parent container processing failed: {status}")
+                        raise RuntimeError(f"Parent container processing failed: {status}")
+                    elif status_code is None:
+                        # Some containers don't expose status_code. Sleep and proceed.
+                        logger.info("status_code not present in parent container metadata. Sleeping 10 seconds to ensure readiness.")
+                        time.sleep(10)
+                        break
+                else:
+                    logger.warning(f"Failed to check parent container status: {status_res.text}")
+            except Exception as se:
+                logger.warning(f"Error checking parent status: {se}")
+            time.sleep(5)
+
         try:
             result = requests.post(
                 f"{self.base_url}/{self.ig_account_id}/media_publish",
