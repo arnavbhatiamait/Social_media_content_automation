@@ -1,4 +1,4 @@
-name: Cron Workflow for Youtube and Insta
+name: Images only Workflow
 
 on:
   workflow_dispatch:
