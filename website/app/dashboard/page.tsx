@@ -254,7 +254,7 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen bg-[#090b16] text-zinc-100 overflow-hidden font-sans">
       {/* Dynamic Glow Orbs */}
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-violet-900/10 blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-blue-900/10 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-cyan-900/10 blur-[150px] pointer-events-none" />
 
       {/* Sidebar - Mobile Toggle */}
@@ -265,8 +265,8 @@ export default function DashboardPage() {
         <div className="flex flex-col h-full">
           {/* Logo Section */}
           <div className="flex items-center gap-3 px-6 py-6 border-b border-zinc-900">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-500 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.4)]">
-              <span className="text-white font-black text-lg">AG</span>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+              <span className="text-white font-black text-lg">SF</span>
             </div>
             <div>
               <h2 className="font-bold text-white tracking-tight leading-none text-base">Synaptic Flow</h2>
@@ -279,7 +279,7 @@ export default function DashboardPage() {
             <button
               onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'overview'
-                  ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
+                  ? 'bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_-3px_rgba(37,99,235,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
                 }`}
             >
@@ -292,7 +292,7 @@ export default function DashboardPage() {
             <button
               onClick={() => { setActiveTab('media'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'media'
-                  ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
+                  ? 'bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_-3px_rgba(37,99,235,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
                 }`}
             >
@@ -305,7 +305,7 @@ export default function DashboardPage() {
             <button
               onClick={() => { setActiveTab('queue'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'queue'
-                  ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
+                  ? 'bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_-3px_rgba(37,99,235,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
                 }`}
             >
@@ -314,7 +314,7 @@ export default function DashboardPage() {
               </svg>
               Pipeline Queue
               {(imagesQueue.length + videosQueue.length) > 0 && (
-                <span className="ml-auto px-2 py-0.5 text-xs font-bold rounded-full bg-violet-600 text-white animate-pulse">
+                <span className="ml-auto px-2 py-0.5 text-xs font-bold rounded-full bg-blue-600 text-white animate-pulse">
                   {imagesQueue.length + videosQueue.length}
                 </span>
               )}
@@ -323,7 +323,7 @@ export default function DashboardPage() {
             <button
               onClick={() => { setActiveTab('storage'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'storage'
-                  ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
+                  ? 'bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_-3px_rgba(37,99,235,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
                 }`}
             >
@@ -336,7 +336,7 @@ export default function DashboardPage() {
             <button
               onClick={() => { setActiveTab('analytics'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'analytics'
-                  ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
+                  ? 'bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_-3px_rgba(37,99,235,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
                 }`}
             >
@@ -414,7 +414,7 @@ export default function DashboardPage() {
 
           {loading && mediaAssets.length === 0 ? (
             <div className="h-64 flex flex-col items-center justify-center gap-4">
-              <svg className="animate-spin h-10 w-10 text-violet-500" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
@@ -445,12 +445,12 @@ export default function DashboardPage() {
                   {/* Grid Widgets */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {/* Widget 1 */}
-                    <div className="backdrop-blur-md bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-2xl flex items-center justify-between hover:border-violet-500/25 transition-all">
+                    <div className="backdrop-blur-md bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-2xl flex items-center justify-between hover:border-blue-500/25 transition-all">
                       <div>
                         <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider block">Images Generated</span>
                         <span className="text-3xl font-extrabold text-white mt-1.5 block">{analytics.counts.images}</span>
                       </div>
-                      <div className="w-12 h-12 rounded-xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
+                      <div className="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                           <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                         </svg>
@@ -507,7 +507,7 @@ export default function DashboardPage() {
                     <div className="lg:col-span-2 backdrop-blur-md bg-zinc-950/40 border border-zinc-900 rounded-2xl p-6">
                       <div className="flex items-center justify-between mb-5">
                         <h3 className="font-bold text-white text-base">Latest Media Outputs</h3>
-                        <button onClick={() => setActiveTab('media')} className="text-xs text-violet-400 hover:text-violet-300 font-medium">View All</button>
+                        <button onClick={() => setActiveTab('media')} className="text-xs text-blue-400 hover:text-blue-300 font-medium">View All</button>
                       </div>
 
                       {mediaAssets.length === 0 ? (
@@ -517,14 +517,14 @@ export default function DashboardPage() {
                           {mediaAssets.slice(0, 5).map((asset) => {
                             const uniqueKey = `${asset.type}-${asset.id}`;
                             const isPreviewing = !!activePreviews[uniqueKey];
-                            const previewUrl = activePreviews[uniqueKey];
+                            const previewUrl = activePreviews[uniqueKey] || asset.signed_url;
 
                             return (
                               <div key={uniqueKey} className="py-4 first:pt-0 last:pb-0 flex flex-col md:flex-row gap-4 items-start justify-between">
                                 <div className="flex gap-4">
                                   {/* Thumbnail Preview Area */}
                                   <div className="relative w-16 h-16 rounded-xl bg-zinc-900 border border-zinc-800 flex-shrink-0 overflow-hidden flex items-center justify-center">
-                                    {isPreviewing && previewUrl ? (
+                                    {previewUrl ? (
                                       asset.type === 'image' ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={previewUrl} alt={asset.alt_text} className="object-cover w-full h-full" />
@@ -567,9 +567,9 @@ export default function DashboardPage() {
                                   {/* Actions */}
                                   <button
                                     onClick={() => handlePreviewMedia(asset, uniqueKey)}
-                                    className="px-3 py-1.5 bg-zinc-900 border border-zinc-800 hover:border-violet-500/40 rounded-lg text-xs font-semibold hover:text-white transition-all"
+                                    className="px-3 py-1.5 bg-zinc-900 border border-zinc-800 hover:border-blue-500/40 rounded-lg text-xs font-semibold hover:text-white transition-all"
                                   >
-                                    {signingUrlId === uniqueKey ? 'Generating...' : isPreviewing ? 'Hide' : 'Reveal'}
+                                    {signingUrlId === uniqueKey ? 'Refreshing...' : 'Refresh URL'}
                                   </button>
                                 </div>
                               </div>
@@ -583,7 +583,7 @@ export default function DashboardPage() {
                     <div className="backdrop-blur-md bg-zinc-950/40 border border-zinc-900 rounded-2xl p-6 flex flex-col">
                       <div className="flex items-center justify-between mb-5">
                         <h3 className="font-bold text-white text-base">Generation Queue</h3>
-                        <button onClick={() => setActiveTab('queue')} className="text-xs text-violet-400 hover:text-violet-300 font-medium">Manage</button>
+                        <button onClick={() => setActiveTab('queue')} className="text-xs text-blue-400 hover:text-blue-300 font-medium">Manage</button>
                       </div>
 
                       <div className="space-y-4 flex-1 overflow-y-auto max-h-96 pr-1">
@@ -632,21 +632,21 @@ export default function DashboardPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => setMediaFilter('all')}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'all' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
                           }`}
                       >
                         All Assets ({mediaAssets.length})
                       </button>
                       <button
                         onClick={() => setMediaFilter('image')}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'image' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'image' ? 'bg-blue-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
                           }`}
                       >
                         Images ({mediaAssets.filter(a => a.type === 'image').length})
                       </button>
                       <button
                         onClick={() => setMediaFilter('video')}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'video' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'video' ? 'bg-blue-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
                           }`}
                       >
                         Videos ({mediaAssets.filter(a => a.type === 'video').length})
@@ -668,25 +668,33 @@ export default function DashboardPage() {
                       {filteredMedia.map((asset) => {
                         const uniqueKey = `${asset.type}-${asset.id}`;
                         const isPreviewing = !!activePreviews[uniqueKey];
-                        const previewUrl = activePreviews[uniqueKey];
+                        const previewUrl = activePreviews[uniqueKey] || asset.signed_url;
 
                         return (
                           <div
                             key={uniqueKey}
-                            className="backdrop-blur-md bg-zinc-950/45 border border-zinc-900 rounded-2xl overflow-hidden hover:border-violet-500/35 hover:shadow-[0_4px_30px_rgba(139,92,246,0.1)] transition-all duration-300 flex flex-col h-full"
+                            className="backdrop-blur-md bg-zinc-950/45 border border-zinc-900 rounded-2xl overflow-hidden hover:border-blue-500/35 hover:shadow-[0_4px_30px_rgba(37,99,235,0.1)] transition-all duration-300 flex flex-col h-full"
                           >
                             {/* Media content body */}
                             <div className="aspect-video w-full bg-zinc-900 border-b border-zinc-900 flex items-center justify-center relative group">
-                              {isPreviewing && previewUrl ? (
+                              {previewUrl ? (
                                 asset.type === 'image' ? (
                                   // eslint-disable-next-line @next/next/no-img-element
-                                  <img src={previewUrl} alt={asset.alt_text} className="w-full h-full object-contain" />
+                                  <img 
+                                    src={previewUrl} 
+                                    alt={asset.alt_text} 
+                                    className="w-full h-full object-cover group-hover:scale-[1.03] transition-all duration-700" 
+                                  />
                                 ) : (
-                                  <video src={previewUrl} controls autoPlay className="w-full h-full object-contain" />
+                                  <video 
+                                    src={previewUrl} 
+                                    controls 
+                                    className="w-full h-full object-cover" 
+                                  />
                                 )
                               ) : (
                                 <div className="flex flex-col items-center justify-center text-center p-4">
-                                  <div className="w-14 h-14 rounded-full bg-zinc-950 flex items-center justify-center border border-zinc-800 text-zinc-500 mb-3 group-hover:text-violet-400 group-hover:border-violet-500/20 transition-all">
+                                  <div className="w-14 h-14 rounded-full bg-zinc-950 flex items-center justify-center border border-zinc-800 text-zinc-500 mb-3 group-hover:text-blue-400 group-hover:border-blue-500/20 transition-all">
                                     {asset.type === 'image' ? (
                                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
@@ -697,22 +705,17 @@ export default function DashboardPage() {
                                       </svg>
                                     )}
                                   </div>
-                                  <span className="text-zinc-600 text-[10px] font-mono tracking-wider block mb-2">{asset.filename}</span>
-                                  <button
-                                    onClick={() => handlePreviewMedia(asset, uniqueKey)}
-                                    className="px-4 py-2 bg-violet-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-violet-600/30 hover:bg-violet-500 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                                  >
-                                    {signingUrlId === uniqueKey ? 'Signing...' : `Reveal ${asset.type.toUpperCase()}`}
-                                  </button>
+                                  <span className="text-zinc-600 text-[10px] font-mono tracking-wider block mb-2">{asset.filename || 'No File'}</span>
+                                  <span className="text-xs text-zinc-500 font-semibold">No Cloud Storage URL</span>
                                 </div>
                               )}
 
-                              {isPreviewing && (
+                              {previewUrl && (
                                 <button
                                   onClick={() => handlePreviewMedia(asset, uniqueKey)}
-                                  className="absolute top-3 right-3 bg-zinc-950/80 hover:bg-zinc-950 p-2 rounded-lg text-zinc-400 hover:text-white border border-zinc-800 transition-all z-10"
+                                  className="absolute top-3 right-3 bg-zinc-950/80 hover:bg-zinc-955 p-2 rounded-xl text-zinc-400 hover:text-white border border-zinc-800 transition-all z-10 text-[10px] font-bold"
                                 >
-                                  Close Preview
+                                  {signingUrlId === uniqueKey ? 'Refreshing...' : 'Refresh URL'}
                                 </button>
                               )}
                             </div>
@@ -785,7 +788,7 @@ export default function DashboardPage() {
                               type="button"
                               onClick={() => setNewType('image')}
                               className={`py-2 px-4 rounded-xl text-xs font-bold border transition-all ${newType === 'image'
-                                  ? 'bg-violet-600 text-white border-violet-500'
+                                  ? 'bg-blue-600 text-white border-blue-500'
                                   : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
                                 }`}
                             >
@@ -795,7 +798,7 @@ export default function DashboardPage() {
                               type="button"
                               onClick={() => setNewType('video')}
                               className={`py-2 px-4 rounded-xl text-xs font-bold border transition-all ${newType === 'video'
-                                  ? 'bg-violet-600 text-white border-violet-500'
+                                  ? 'bg-blue-600 text-white border-blue-500'
                                   : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
                                 }`}
                             >
@@ -812,7 +815,7 @@ export default function DashboardPage() {
                             placeholder="e.g. Shiva, Hanuman, or custom scene details..."
                             value={newPrompt}
                             onChange={(e) => setNewPrompt(e.target.value)}
-                            className="w-full px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/80 transition-all font-mono text-xs"
+                            className="w-full px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500/80 transition-all font-mono text-xs"
                             required
                           />
                         </div>
@@ -825,7 +828,7 @@ export default function DashboardPage() {
                               type="checkbox"
                               checked={autoInsta}
                               onChange={(e) => setAutoInsta(e.target.checked)}
-                              className="accent-violet-600 rounded"
+                              className="accent-blue-600 rounded"
                             />
                             <span className="text-xs text-zinc-300">Instagram Feed / Reels publish</span>
                           </label>
@@ -835,7 +838,7 @@ export default function DashboardPage() {
                               type="checkbox"
                               checked={autoYt}
                               onChange={(e) => setAutoYt(e.target.checked)}
-                              className="accent-violet-600 rounded"
+                              className="accent-blue-600 rounded"
                             />
                             <span className="text-xs text-zinc-300">YouTube Shorts publish (video only)</span>
                           </label>
@@ -851,7 +854,7 @@ export default function DashboardPage() {
                         <button
                           type="submit"
                           disabled={submittingPrompt || !newPrompt.trim()}
-                          className="w-full py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-xl text-xs font-bold transition-all shadow-[0_4px_15px_rgba(139,92,246,0.3)] disabled:opacity-50"
+                          className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-xl text-xs font-bold transition-all shadow-[0_4px_15px_rgba(37,99,235,0.3)] disabled:opacity-50"
                         >
                           {submittingPrompt ? 'Adding...' : 'Enqueue Generation'}
                         </button>
@@ -1010,7 +1013,7 @@ export default function DashboardPage() {
                                             href={previewUrl}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="px-3 py-1.5 bg-violet-600 hover:bg-violet-500 rounded-lg text-xs font-semibold text-white transition-all inline-flex items-center gap-1"
+                                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-xs font-semibold text-white transition-all inline-flex items-center gap-1"
                                           >
                                             Open
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
@@ -1035,7 +1038,7 @@ export default function DashboardPage() {
                                             <div className="p-8 text-center text-zinc-500 font-mono text-xs">
                                               No preview available for content type: {file.contentType}
                                               <div className="mt-3">
-                                                <a href={previewUrl} download className="text-violet-400 hover:underline">Download file directly</a>
+                                                <a href={previewUrl} download className="text-blue-400 hover:underline">Download file directly</a>
                                               </div>
                                             </div>
                                           )}
@@ -1103,7 +1106,7 @@ export default function DashboardPage() {
 
                         {/* Impressions Bar */}
                         <div className="flex-1 flex flex-col items-center justify-end h-full gap-2 relative z-10 group">
-                          <div className="w-full max-w-[80px] bg-gradient-to-t from-violet-600/80 to-violet-500 rounded-t-lg transition-all duration-500 hover:opacity-90 shadow-[0_0_15px_rgba(139,92,246,0.3)]" style={{ height: '70%' }}>
+                          <div className="w-full max-w-[80px] bg-gradient-to-t from-blue-600/80 to-blue-500 rounded-t-lg transition-all duration-500 hover:opacity-90 shadow-[0_0_15px_rgba(37,99,235,0.3)]" style={{ height: '70%' }}>
                             <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 text-[10px] text-zinc-300 opacity-0 group-hover:opacity-100 transition-all font-mono pointer-events-none">
                               {analytics.sums.impressions}
                             </div>
