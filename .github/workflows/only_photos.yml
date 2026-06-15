@@ -65,7 +65,7 @@ jobs:
           IS_DOCKER: "False"
           VEO: ${{ secrets.VEO }}
           VEO_MODEL_NAME: ${{ secrets.VEO_MODEL_NAME }}
-        run: python main.py --image
+        run: python main.py --type image
 
       # - name: Commit and push changes to video_prompts.txt
       #   run: |
