@@ -88,7 +88,7 @@ class VideoPipeline:
         logger.info(f"Generating thumbnail from {image_path}")
         shutil.copy2(image_path, output_path)
 
-    def run_pipeline(self, data: dict, images_dir: str, audio_dir: str, bgm_path: str = None) -> str:
+    def run_pipeline(self, data: dict, images_dir: str, audio_dir: str, bgm_path: str = None, output_name: str = "final_video.mp4") -> str:
         logger.info("================================================")
         logger.info("Starting Video Assembly Pipeline...")
         logger.info(f"Output directory set to: {self.output_dir}")
@@ -138,7 +138,7 @@ class VideoPipeline:
         concatenated_video = os.path.join(self.tmp_dir, "concatenated.mp4")
         self.concatenate_scenes(scene_files, concatenated_video)
 
-        final_video = os.path.join(self.output_dir, "final_video.mp4")
+        final_video = os.path.join(self.output_dir, output_name)
 
         # Add background music if provided
         if bgm_path and os.path.exists(bgm_path):

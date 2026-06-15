@@ -296,6 +296,10 @@ class VideoUploadPipeline:
             # Check if Veo pipeline is enabled via VEO environment variable
             use_veo = os.getenv("VEO", "False").lower() in ("true", "1", "yes")
             
+            # Generate a timestamped video file name
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_name = f"final_video_{timestamp}.mp4"
+            
             if use_veo:
                 logger.info("VEO is enabled. Initiating Google Veo Video Generation...")
                 from video_assembler.Veo import VeoVideoGenerator
@@ -307,7 +311,7 @@ class VideoUploadPipeline:
                 veo_gen = VeoVideoGenerator(output_dir=os.path.abspath(output_dir))
                 final_video = veo_gen.generate_video(
                     prompt=veo_prompt,
-                    output_name="final_video.mp4"
+                    output_name=output_name
                 )
                 
                 data["scenes"] = scenes
@@ -329,7 +333,8 @@ class VideoUploadPipeline:
                     data=data,
                     images_dir=images_dir,
                     audio_dir=audio_dir,
-                    bgm_path=None
+                    bgm_path=None,
+                    output_name=output_name
                 )
                 return final_video, data
             
