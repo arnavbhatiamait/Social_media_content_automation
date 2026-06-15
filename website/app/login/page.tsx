@@ -67,19 +67,12 @@ export default function LoginPage() {
         {/* Main card */}
         <div className="backdrop-blur-xl bg-zinc-950/65 border border-zinc-800/80 rounded-2xl p-8 shadow-[0_0_50px_-12px_rgba(37,99,235,0.25)] hover:border-blue-500/35 transition-all duration-500">
           {/* Project Banner Header */}
-          <div className="w-full h-24 rounded-xl overflow-hidden mb-6 border border-zinc-900 shadow-inner">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src="/project_banner.png" 
-              alt=" Banner" 
-              className="w-full h-full object-cover"
-            />
-          </div>
+
 
           <div className="flex flex-col items-center mb-8">
             {/* Glowing Logo */}
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.4)] mb-4 select-none">
-              <span className="text-white font-black text-2xl tracking-tighter">AG</span>
+              <span className="text-white font-black text-2xl tracking-tighter">SF</span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-white">Synaptic Flow Console</h1>
             <p className="text-zinc-400 text-sm mt-2 text-center">
