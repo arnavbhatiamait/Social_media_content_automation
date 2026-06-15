@@ -1,12 +1,16 @@
+require('./load-env');
 const { Pool } = require('pg');
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const fs = require('fs');
 
-// Set env vars
-process.env.DATABASE_URL = 'postgresql://neondb_owner:local_postgres_password_123@ep-shy-haze-atri6g51-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
-process.env.GCP_CREDENTIALS_PATH = '../gcp_secrets.json';
-process.env.GCP_BUCKET_NAME = 'databucket_reels_photos';
+// Set default env vars if not already loaded
+if (!process.env.GCP_CREDENTIALS_PATH) {
+  process.env.GCP_CREDENTIALS_PATH = '../gcp_secrets.json';
+}
+if (!process.env.GCP_BUCKET_NAME) {
+  process.env.GCP_BUCKET_NAME = 'databucket_reels_photos';
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
