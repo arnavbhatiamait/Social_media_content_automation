@@ -48,8 +48,8 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-[#070913] overflow-hidden font-sans">
       {/* Decorative ambient glowing background circles */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-violet-600/20 blur-[80px]" />
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] rounded-full bg-cyan-500/15 blur-[100px]" />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-blue-600/10 blur-[80px]" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] rounded-full bg-cyan-500/10 blur-[100px]" />
 
       {/* Cyberpunk grid overlay */}
       <div 
@@ -65,13 +65,23 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md px-6 py-12">
         {/* Main card */}
-        <div className="backdrop-blur-xl bg-zinc-950/65 border border-zinc-800/80 rounded-2xl p-8 shadow-[0_0_50px_-12px_rgba(139,92,246,0.3)] hover:border-violet-500/35 transition-all duration-500">
+        <div className="backdrop-blur-xl bg-zinc-950/65 border border-zinc-800/80 rounded-2xl p-8 shadow-[0_0_50px_-12px_rgba(37,99,235,0.25)] hover:border-blue-500/35 transition-all duration-500">
+          {/* Project Banner Header */}
+          <div className="w-full h-24 rounded-xl overflow-hidden mb-6 border border-zinc-900 shadow-inner">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/project_banner.png" 
+              alt=" Banner" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+
           <div className="flex flex-col items-center mb-8">
             {/* Glowing Logo */}
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-500 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.5)] mb-4 select-none">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.4)] mb-4 select-none">
               <span className="text-white font-black text-2xl tracking-tighter">AG</span>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Antigravity Console</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Synaptic Flow Console</h1>
             <p className="text-zinc-400 text-sm mt-2 text-center">
               Enter your password to manage automated posts and cloud assets.
             </p>
@@ -91,7 +101,7 @@ export default function LoginPage() {
                 placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/80 focus:ring-1 focus:ring-violet-500/80 transition-all duration-300"
+                className="w-full px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/80 transition-all duration-300"
                 disabled={loading}
               />
             </div>
@@ -108,7 +118,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="relative w-full py-3 px-4 rounded-xl font-medium text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 active:scale-[0.98] transition-all duration-300 shadow-[0_4px_20px_rgba(139,92,246,0.3)] disabled:opacity-50 disabled:pointer-events-none overflow-hidden"
+              className="relative w-full py-3 px-4 rounded-xl font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 active:scale-[0.98] transition-all duration-300 shadow-[0_4px_20px_rgba(37,99,235,0.3)] disabled:opacity-50 disabled:pointer-events-none overflow-hidden"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
@@ -127,7 +137,7 @@ export default function LoginPage() {
 
         {/* Footer info */}
         <p className="text-center text-xs text-zinc-600 mt-8 font-mono">
-          Antigravity Automated Posts Platform v1.0
+          Synaptic Flow Automated Posts Platform v1.0
         </p>
       </div>
     </div>

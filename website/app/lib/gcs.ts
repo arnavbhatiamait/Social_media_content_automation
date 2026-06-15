@@ -27,6 +27,8 @@ const bucket = storage.bucket(bucketName);
  */
 export async function getSignedUrl(blobName: string, expirationSeconds: number = 3600): Promise<string> {
   try {
+    if (!blobName) return '';
+
     // If the path is already a public https URL, return it directly
     if (blobName.startsWith('http://') || blobName.startsWith('https://')) {
       return blobName;
@@ -44,6 +46,16 @@ export async function getSignedUrl(blobName: string, expirationSeconds: number =
         const parts = blobName.replace('gs://', '').split('/');
         parts.shift(); // remove bucket
         cleanBlobName = parts.join('/');
+      }
+    }
+
+    // Auto-detect and add folder prefix if cleanBlobName is just a raw filename (doesn't contain folder paths)
+    if (!cleanBlobName.includes('/')) {
+      const ext = path.extname(cleanBlobName).toLowerCase();
+      if (['.png', '.jpg', '.jpeg', '.webp', '.gif'].includes(ext)) {
+        cleanBlobName = `images/${cleanBlobName}`;
+      } else if (['.mp4', '.mov', '.webm', '.avi', '.mkv'].includes(ext)) {
+        cleanBlobName = `videos/${cleanBlobName}`;
       }
     }
 

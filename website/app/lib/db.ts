@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Pool } from 'pg';
 
 let pool: Pool;

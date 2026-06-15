@@ -61,7 +61,7 @@ interface AnalyticsData {
 export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'media' | 'queue' | 'storage' | 'analytics'>('overview');
-  
+
   // Data States
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [mediaFilter, setMediaFilter] = useState<'all' | 'image' | 'video'>('all');
@@ -151,7 +151,7 @@ export default function DashboardPage() {
       const filename = typeof asset === 'string' ? asset : asset.filename;
       const res = await fetch(`/api/media/signed-url?filename=${encodeURIComponent(filename)}`);
       const data = await res.json();
-      
+
       if (res.ok && data.success) {
         setActivePreviews((prev) => ({
           ...prev,
@@ -269,7 +269,7 @@ export default function DashboardPage() {
               <span className="text-white font-black text-lg">AG</span>
             </div>
             <div>
-              <h2 className="font-bold text-white tracking-tight leading-none text-base">Antigravity</h2>
+              <h2 className="font-bold text-white tracking-tight leading-none text-base">Synaptic Flow</h2>
               <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mt-1 inline-block">Post Control</span>
             </div>
           </div>
@@ -278,11 +278,10 @@ export default function DashboardPage() {
           <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
             <button
               onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                activeTab === 'overview'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'overview'
                   ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
-              }`}
+                }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -292,11 +291,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => { setActiveTab('media'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                activeTab === 'media'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'media'
                   ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
-              }`}
+                }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
@@ -306,11 +304,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => { setActiveTab('queue'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                activeTab === 'queue'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'queue'
                   ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
-              }`}
+                }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75c.621 0 1.125.504 1.125 1.125v1.875c0 .621-.504 1.125-1.125 1.125H5.625A1.125 1.125 0 0 1 4.5 7.5V5.625c0-.621.504-1.125 1.125-1.125Z" />
@@ -325,11 +322,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => { setActiveTab('storage'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                activeTab === 'storage'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'storage'
                   ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
-              }`}
+                }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
@@ -339,11 +335,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => { setActiveTab('analytics'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                activeTab === 'analytics'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'analytics'
                   ? 'bg-violet-600/15 text-violet-400 border border-violet-500/20 shadow-[0_0_15px_-3px_rgba(139,92,246,0.25)]'
                   : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/40 border border-transparent'
-              }`}
+                }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
@@ -430,6 +425,23 @@ export default function DashboardPage() {
               {/* TAB 1: OVERVIEW */}
               {activeTab === 'overview' && (
                 <div className="space-y-6">
+                  {/* Project Banner Display */}
+                  <div className="relative w-full h-[180px] rounded-2xl overflow-hidden border border-zinc-800/80 shadow-xl">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/project_banner.png"
+                      alt="Project Banner"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#090b16] via-[#090b16]/30 to-transparent" />
+                    <div className="absolute bottom-6 left-6 space-y-1">
+                      <span className="px-2.5 py-0.5 bg-blue-600/90 text-white rounded-full text-[9px] font-bold tracking-widest uppercase font-mono shadow-[0_0_10px_rgba(37,99,235,0.4)]">
+                        Console Dashboard
+                      </span>
+                      <h2 className="text-2xl font-black tracking-tight text-white">Automated Social Media Pipeline</h2>
+                    </div>
+                  </div>
+
                   {/* Grid Widgets */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {/* Widget 1 */}
@@ -620,25 +632,22 @@ export default function DashboardPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => setMediaFilter('all')}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
-                          mediaFilter === 'all' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
-                        }`}
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'all' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                          }`}
                       >
                         All Assets ({mediaAssets.length})
                       </button>
                       <button
                         onClick={() => setMediaFilter('image')}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
-                          mediaFilter === 'image' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
-                        }`}
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'image' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                          }`}
                       >
                         Images ({mediaAssets.filter(a => a.type === 'image').length})
                       </button>
                       <button
                         onClick={() => setMediaFilter('video')}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
-                          mediaFilter === 'video' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
-                        }`}
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${mediaFilter === 'video' ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                          }`}
                       >
                         Videos ({mediaAssets.filter(a => a.type === 'video').length})
                       </button>
@@ -767,7 +776,7 @@ export default function DashboardPage() {
                     {/* Trigger form */}
                     <div className="backdrop-blur-md bg-zinc-950/40 border border-zinc-900 rounded-2xl p-6">
                       <h3 className="font-bold text-white text-base mb-5">Queue New Generation</h3>
-                      
+
                       <form onSubmit={handleAddPrompt} className="space-y-5">
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Asset Type</label>
@@ -775,22 +784,20 @@ export default function DashboardPage() {
                             <button
                               type="button"
                               onClick={() => setNewType('image')}
-                              className={`py-2 px-4 rounded-xl text-xs font-bold border transition-all ${
-                                newType === 'image'
+                              className={`py-2 px-4 rounded-xl text-xs font-bold border transition-all ${newType === 'image'
                                   ? 'bg-violet-600 text-white border-violet-500'
                                   : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
-                              }`}
+                                }`}
                             >
                               Image Prompt
                             </button>
                             <button
                               type="button"
                               onClick={() => setNewType('video')}
-                              className={`py-2 px-4 rounded-xl text-xs font-bold border transition-all ${
-                                newType === 'video'
+                              className={`py-2 px-4 rounded-xl text-xs font-bold border transition-all ${newType === 'video'
                                   ? 'bg-violet-600 text-white border-violet-500'
                                   : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
-                              }`}
+                                }`}
                             >
                               Video Script
                             </button>
@@ -812,7 +819,7 @@ export default function DashboardPage() {
 
                         <div className="space-y-3 bg-zinc-900/20 border border-zinc-900/50 p-4 rounded-xl">
                           <span className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">Post Automation</span>
-                          
+
                           <label className="flex items-center gap-3 cursor-pointer select-none">
                             <input
                               type="checkbox"
@@ -997,7 +1004,7 @@ export default function DashboardPage() {
                                         >
                                           {signingUrlId === uniqueKey ? 'Signing...' : isPreviewing ? 'Hide' : 'Reveal Link'}
                                         </button>
-                                        
+
                                         {isPreviewing && previewUrl && (
                                           <a
                                             href={previewUrl}
@@ -1081,7 +1088,7 @@ export default function DashboardPage() {
                   {/* SVG Interactions Chart */}
                   <div className="backdrop-blur-md bg-zinc-950/40 border border-zinc-900 rounded-2xl p-6">
                     <h3 className="font-bold text-white text-base mb-6">Interaction Analytics Visualization</h3>
-                    
+
                     {/* Dynamic custom SVG bar chart */}
                     <div className="w-full aspect-[21/9] bg-zinc-950/40 rounded-xl p-4 border border-zinc-900 flex flex-col justify-between">
                       {/* SVG Canvas */}
