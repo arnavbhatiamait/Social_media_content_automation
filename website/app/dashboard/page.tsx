@@ -334,7 +334,7 @@ export default function DashboardPage() {
       <div className={`
         fixed inset-y-0 left-0 z-50 w-64 backdrop-blur-md transform transition-transform duration-300 md:relative md:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        ${isLightMode ? 'bg-white/95 border-r border-slate-200 shadow-lg shadow-slate-100/50' : 'bg-zinc-955/80 border-r border-zinc-900'}
+        ${isLightMode ? 'bg-white/95 border-r border-slate-200 shadow-lg shadow-slate-100/50' : 'bg-zinc-950/80 border-r border-zinc-900'}
       `}>
         <div className="flex flex-col h-full">
           {/* Logo Section */}
@@ -415,7 +415,7 @@ export default function DashboardPage() {
 
           {/* User Settings & Logout */}
           <div className={`p-4 border-t transition-colors duration-300 ${
-            isLightMode ? 'border-slate-205/80' : 'border-zinc-900'
+            isLightMode ? 'border-slate-200/80' : 'border-zinc-900'
           }`}>
             <button
               onClick={handleLogout}
@@ -438,7 +438,7 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         {/* Header bar */}
         <header className={`flex items-center justify-between px-6 py-4 border-b backdrop-blur-md transition-colors duration-300 ${
-          isLightMode ? 'bg-white/70 border-slate-200' : 'bg-zinc-955/50 border-zinc-900'
+          isLightMode ? 'bg-white/70 border-slate-200' : 'bg-zinc-950/50 border-zinc-900'
         }`}>
           <div className="flex items-center gap-3">
             <button
@@ -508,7 +508,7 @@ export default function DashboardPage() {
         <main className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
           {errorMsg && (
             <div className={`p-4 rounded-xl text-sm flex items-center justify-between transition-colors duration-300 ${
-              isLightMode ? 'bg-red-50 border border-red-200 text-red-750' : 'bg-red-955/25 border border-red-900/40 text-red-300'
+              isLightMode ? 'bg-red-50 border border-red-200 text-red-750' : 'bg-red-950/25 border border-red-900/40 text-red-300'
             }`}>
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500" />
@@ -683,8 +683,8 @@ export default function DashboardPage() {
                             const previewUrl = activePreviews[uniqueKey] || asset.signed_url;
 
                             return (
-                              <div key={uniqueKey} className="py-4 first:pt-0 last:pb-0 flex flex-col md:flex-row gap-4 items-start justify-between">
-                                <div className="flex gap-4">
+                              <div key={uniqueKey} className="py-4 first:pt-0 last:pb-0 flex flex-col gap-3">
+                                <div className="flex gap-4 items-start">
                                   {/* Thumbnail Preview Area */}
                                   <div className={`relative w-16 h-16 rounded-xl border flex-shrink-0 overflow-hidden flex items-center justify-center transition-colors ${
                                     isLightMode ? 'bg-slate-100 border-slate-200' : 'bg-zinc-900 border-zinc-800'
@@ -698,29 +698,29 @@ export default function DashboardPage() {
                                       )
                                     ) : (
                                       <div className={`flex flex-col items-center justify-center text-[10px] font-mono transition-colors ${
-                                        isLightMode ? 'text-slate-450' : 'text-zinc-600'
+                                        isLightMode ? 'text-slate-400' : 'text-zinc-650'
                                       }`}>
                                         <span>{asset.type.toUpperCase()}</span>
                                       </div>
                                     )}
                                   </div>
 
-                                  <div>
+                                  <div className="min-w-0 flex-1">
                                     <h4 className={`font-semibold text-sm line-clamp-1 transition-colors ${
                                       isLightMode ? 'text-slate-800' : 'text-white'
-                                    }`}>{asset.prompt}</h4>
-                                    <p className={`text-xs font-mono mt-1 transition-colors ${
-                                      isLightMode ? 'text-slate-500' : 'text-zinc-505'
+                                    }`} title={asset.prompt}>{asset.prompt}</h4>
+                                    <p className={`text-xs font-mono mt-0.5 transition-colors ${
+                                      isLightMode ? 'text-slate-500' : 'text-zinc-400'
                                     }`}>Model: {asset.model || 'Unknown'}</p>
                                     <span className={`text-[10px] block mt-0.5 transition-colors ${
-                                      isLightMode ? 'text-slate-400' : 'text-zinc-600'
+                                      isLightMode ? 'text-slate-400' : 'text-zinc-500'
                                     }`}>
                                       {formatToIST(asset.created_at)}
                                     </span>
                                   </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-between gap-3 pt-2 border-t border-dashed border-slate-100 dark:border-zinc-900">
                                   {/* Social status badges */}
                                   <div className="flex items-center gap-1.5">
                                     {asset.posted_insta ? (
@@ -762,7 +762,7 @@ export default function DashboardPage() {
 
                     {/* Quick Queue View */}
                     <div className={`backdrop-blur-md border rounded-2xl p-6 flex flex-col transition-all duration-300 ${
-                      isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-955/40 border-zinc-900'
+                      isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-900/40 border-zinc-900'
                     }`}>
                       <div className="flex items-center justify-between mb-5">
                         <h3 className={`font-bold text-base transition-colors ${
@@ -832,7 +832,7 @@ export default function DashboardPage() {
                 <div className="space-y-6">
                   {/* Filters bar */}
                   <div className={`flex flex-col sm:flex-row gap-4 items-center justify-between p-4 border rounded-2xl transition-colors duration-300 ${
-                    isLightMode ? 'bg-white border-slate-200/85 shadow-sm shadow-slate-100/50' : 'bg-zinc-955/40 border-zinc-900'
+                    isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-900/40 border-zinc-900'
                   }`}>
                     <div className="flex gap-2">
                       <button
@@ -884,8 +884,8 @@ export default function DashboardPage() {
                   {filteredMedia.length === 0 ? (
                     <div className={`text-center py-24 border rounded-2xl transition-colors duration-300 ${
                       isLightMode 
-                        ? 'bg-white border-slate-200 text-slate-450 shadow-sm shadow-slate-100/50' 
-                        : 'bg-zinc-955/20 border-zinc-900 text-zinc-500'
+                        ? 'bg-white border-slate-200 text-slate-400 shadow-sm shadow-slate-100/50' 
+                        : 'bg-zinc-900/20 border-zinc-900 text-zinc-500'
                     }`}>
                       No media files matched the active filters.
                     </div>
@@ -900,8 +900,8 @@ export default function DashboardPage() {
                             key={uniqueKey}
                             className={`border rounded-2xl overflow-hidden transition-all duration-300 flex flex-col h-full ${
                               isLightMode 
-                                ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50 hover:border-blue-500/40 hover:shadow-[0_4px_30px_rgba(37,99,235,0.08)]' 
-                                : 'bg-zinc-955/45 border-zinc-900 hover:border-blue-500/35 hover:shadow-[0_4px_30px_rgba(37,99,235,0.1)]'
+                                ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' 
+                                : 'bg-zinc-900/45 border-zinc-900'
                             }`}
                           >
                             {/* Media content body */}
@@ -984,7 +984,7 @@ export default function DashboardPage() {
                               </div>
 
                               <div className={`pt-3 border-t flex items-center justify-between text-[11px] transition-colors duration-300 ${
-                                isLightMode ? 'border-slate-100 text-slate-405' : 'border-zinc-900 text-zinc-505'
+                                isLightMode ? 'border-slate-100 text-slate-400' : 'border-zinc-900 text-zinc-500'
                               }`}>
                                 <span>{formatDateToIST(asset.created_at)}</span>
                                 <div className="flex items-center gap-1.5">
@@ -1031,7 +1031,7 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                     {/* Trigger form */}
                     <div className={`backdrop-blur-md border rounded-2xl p-6 transition-colors duration-300 ${
-                      isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-955/40 border-zinc-900'
+                      isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-900/40 border-zinc-900'
                     }`}>
                       <h3 className={`font-bold text-base mb-5 transition-colors ${
                         isLightMode ? 'text-slate-900' : 'text-white'
@@ -1140,7 +1140,7 @@ export default function DashboardPage() {
 
                     {/* Active Queue lists */}
                     <div className={`backdrop-blur-md border rounded-2xl p-6 transition-colors duration-300 ${
-                      isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-955/40 border-zinc-900'
+                      isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-900/40 border-zinc-900'
                     }`}>
                       <h3 className={`font-bold text-base mb-5 transition-colors ${
                         isLightMode ? 'text-slate-900' : 'text-white'
@@ -1183,7 +1183,7 @@ export default function DashboardPage() {
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-3 shrink-0">
-                                    <span className="px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-505 text-[9px] uppercase tracking-wider font-semibold">Queue</span>
+                                    <span className="px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-500 text-[9px] uppercase tracking-wider font-semibold">Queue</span>
                                     <button
                                       onClick={() => handleDeleteQueueItem('image', item.id)}
                                       className={`p-1 rounded border transition-all ${
@@ -1272,7 +1272,7 @@ export default function DashboardPage() {
               {activeTab === 'storage' && (
                 <div className="space-y-6">
                   <div className={`backdrop-blur-md border rounded-2xl overflow-hidden transition-colors duration-300 ${
-                    isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-955/40 border-zinc-900'
+                    isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-900/40 border-zinc-900'
                   }`}>
                     <div className={`px-6 py-5 border-b flex flex-col sm:flex-row gap-4 items-center justify-between transition-colors duration-300 ${
                       isLightMode ? 'border-slate-200' : 'border-zinc-900'
@@ -1375,7 +1375,7 @@ export default function DashboardPage() {
                                   </tr>
 
                                   {isPreviewing && previewUrl && (
-                                    <tr className={isLightMode ? 'bg-slate-50/20' : 'bg-zinc-955/40'}>
+                                    <tr className={isLightMode ? 'bg-slate-50/20' : 'bg-zinc-900/40'}>
                                       <td colSpan={5} className={`py-4 px-6 border-b transition-colors duration-305 ${
                                         isLightMode ? 'border-slate-100' : 'border-zinc-900'
                                       }`}>
@@ -1481,7 +1481,7 @@ export default function DashboardPage() {
 
                   {/* SVG Interactions Chart */}
                   <div className={`backdrop-blur-md border rounded-2xl p-6 transition-all duration-300 ${
-                    isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-955/40 border-zinc-900'
+                    isLightMode ? 'bg-white border-slate-200 shadow-sm shadow-slate-100/50' : 'bg-zinc-900/40 border-zinc-900'
                   }`}>
                     <h3 className={`font-bold text-base mb-6 transition-colors ${
                       isLightMode ? 'text-slate-900' : 'text-white'
@@ -1489,7 +1489,7 @@ export default function DashboardPage() {
 
                     {/* Dynamic custom SVG bar chart */}
                     <div className={`w-full aspect-[21/9] rounded-xl p-4 border flex flex-col justify-between transition-colors duration-300 ${
-                      isLightMode ? 'bg-slate-50 border-slate-200/80' : 'bg-zinc-955/40 border-zinc-900'
+                      isLightMode ? 'bg-slate-50 border-slate-200/80' : 'bg-zinc-900/40 border-zinc-900'
                     }`}>
                       {/* SVG Canvas */}
                       <div className="w-full flex-1 flex items-end gap-6 relative pt-6 px-4">

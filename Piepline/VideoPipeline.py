@@ -433,21 +433,50 @@ class VideoUploadPipeline:
             logger.warning("No scene images found to post as a carousel.")
             return False
 
-        logger.info(f"Found {len(image_files)} images for carousel. Uploading to GCS...")
+        # Prepare GCS upload folder and temporary directory for cropped images
+        tmp_carousel_dir = os.path.join(os.path.dirname(images_dir), "tmp", "carousel_crop")
+        os.makedirs(tmp_carousel_dir, exist_ok=True)
+
+        logger.info(f"Found {len(image_files)} images for carousel. Normalizing aspect ratios and uploading to GCS...")
         signed_urls = []
         for img_path in image_files:
             try:
+                from PIL import Image
+                upload_path = img_path
+                
+                with Image.open(img_path) as img:
+                    width, height = img.size
+                    
+                    # Instagram carousels require uniform aspect ratios, and support values between 4:5 (0.8) and 1.91:1 (1.91).
+                    # Crop images to a uniform 1:1 aspect ratio (center-cropped square) to guarantee perfect uniformity
+                    # and ensure compatibility across mixed portrait (9:16) and fallback (1:1) images.
+                    min_dim = min(width, height)
+                    left = (width - min_dim) // 2
+                    top = (height - min_dim) // 2
+                    right = left + min_dim
+                    bottom = top + min_dim
+                    
+                    # Only crop if it's not already square
+                    if width != height:
+                        logger.info(f"Image {img_path} is not square ({width}x{height}). Center-cropping to 1:1 square...")
+                        cropped_img = img.crop((left, top, right, bottom))
+                        cropped_path = os.path.join(tmp_carousel_dir, os.path.basename(img_path))
+                        cropped_img.save(cropped_path)
+                        upload_path = cropped_path
+                    else:
+                        logger.info(f"Image {img_path} is already square ({width}x{height}). No cropping needed.")
+
                 blob_name = f"carousel/{os.path.basename(img_path)}"
                 # Upload to GCS
                 self.storage.upload_file(
-                    local_file_path=img_path,
+                    local_file_path=upload_path,
                     destination_blob_name=blob_name,
                     make_public=False
                 )
                 # Generate signed URL (valid for 1 hour, enough for Meta to fetch)
                 signed_url = self.storage.get_signed_url(blob_name, expiration_time=3600)
                 signed_urls.append(signed_url)
-                logger.info(f"Uploaded {img_path} to GCS, signed URL: {signed_url[:50]}...")
+                logger.info(f"Uploaded {upload_path} to GCS, signed URL: {signed_url[:50]}...")
             except Exception as e:
                 logger.error(f"Failed to upload image {img_path} to storage: {e}")
                 return False

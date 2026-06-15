@@ -281,7 +281,13 @@ class InstaSetup:
             logger.info(f"Carousel parent container created: {container_json}")
             parent_id = container_json["id"]
         except Exception as e:
-            logger.error(f"Carousel container creation failed {e}")
+            error_msg = str(e)
+            if hasattr(e, "response") and e.response is not None:
+                try:
+                    error_msg += f" | Response: {e.response.text}"
+                except Exception:
+                    pass
+            logger.error(f"Carousel container creation failed: {error_msg}")
             raise
 
         try:
@@ -297,7 +303,13 @@ class InstaSetup:
             logger.info(f"Carousel published successfully: {result_json}")
             return result_json
         except Exception as e:
-            logger.error(f"Carousel published failed {e}")
+            error_msg = str(e)
+            if hasattr(e, "response") and e.response is not None:
+                try:
+                    error_msg += f" | Response: {e.response.text}"
+                except Exception:
+                    pass
+            logger.error(f"Carousel published failed: {error_msg}")
             raise
 
 if __name__=="__main__":

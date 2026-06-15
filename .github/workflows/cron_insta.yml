@@ -27,7 +27,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: Verify
+      - name: Verify FFmpeg
         run: |
           ffmpeg -version
           ffprobe -version
@@ -43,7 +43,7 @@ jobs:
           echo '${{ secrets.YT_TOKEN_JSON }}' > token.json
           echo '${{ secrets.YT_CLIENT_SECRET_JSON }}' > client_secret.json
 
-      - name: Run Video Pipeline
+      - name: Run Full Pipeline
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           USE_CLOUD_SAVE: "True"
