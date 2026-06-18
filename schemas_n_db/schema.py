@@ -161,6 +161,7 @@ class Images_God(Base):
     description: Mapped[str] = mapped_column(Text)
     yt_posted: Mapped[bool] = mapped_column(Boolean, default=False)
     insta_posted: Mapped[bool] = mapped_column(Boolean, default=False)   
+    fb_posted: Mapped[bool] = mapped_column(Boolean, default=False)
     posted: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -182,6 +183,7 @@ class Video_God(Base):
     description: Mapped[str] = mapped_column(Text)
     yt_posted: Mapped[bool] = mapped_column(Boolean, default=False)
     insta_posted: Mapped[bool] = mapped_column(Boolean, default=False)      
+    fb_posted: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -194,6 +196,7 @@ class videos_on_demand(Base):
     yt_post: Mapped[bool] = mapped_column(Boolean, default=False)
     generated : Mapped[bool] = mapped_column(Boolean,default=False)
     insta_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    fb_post: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -204,6 +207,7 @@ class images_on_demand(Base):
     yt_post: Mapped[bool] = mapped_column(Boolean, default=False)
     generated : Mapped[bool] = mapped_column(Boolean,default=False)
     insta_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    fb_post: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

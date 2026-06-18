@@ -32,6 +32,20 @@ class VideoUploadPipeline:
 
         self.insta = InstaSetup()
         
+        # Instantiate FacebookPublisher
+        try:
+            from Facebook_upload.facebook_config import FacebookPublisher
+            fb_page_id = os.getenv("FB_PAGE_ID")
+            fb_access_token = os.getenv("FB_ACCESS_TOKEN")
+            if fb_page_id and fb_access_token:
+                self.facebook = FacebookPublisher(page_id=fb_page_id, access_token=fb_access_token)
+            else:
+                logger.warning("Facebook credentials (FB_PAGE_ID/FB_ACCESS_TOKEN) not found in env. Running with facebook=None.")
+                self.facebook = None
+        except Exception as e:
+            logger.error(f"Could not initialize FacebookPublisher: {e}")
+            self.facebook = None
+        
         # Instantiate YoutubeUploader
         try:
             self.youtube = YoutubeUploader()
@@ -439,6 +453,7 @@ class VideoUploadPipeline:
 
         logger.info(f"Found {len(image_files)} images for carousel. Normalizing aspect ratios and uploading to GCS...")
         signed_urls = []
+        local_upload_paths = []
         for img_path in image_files:
             try:
                 from PIL import Image
@@ -465,6 +480,8 @@ class VideoUploadPipeline:
                         upload_path = cropped_path
                     else:
                         logger.info(f"Image {img_path} is already square ({width}x{height}). No cropping needed.")
+
+                local_upload_paths.append(upload_path)
 
                 blob_name = f"carousel/{os.path.basename(img_path)}"
                 # Upload to GCS
@@ -495,6 +512,20 @@ class VideoUploadPipeline:
         except Exception as e:
             logger.error(f"Instagram carousel publishing failed: {e}")
 
+        # Post carousel to Facebook
+        fb_posted = False
+        if self.facebook:
+            logger.info("Publishing carousel to Facebook...")
+            try:
+                fb_result = self.facebook.post_carousel(image_paths=local_upload_paths, caption=caption)
+                if fb_result and fb_result.get("id"):
+                    logger.info(f"Facebook carousel publish success. Post ID: {fb_result.get('id')}")
+                    fb_posted = True
+                else:
+                    logger.error(f"Facebook carousel publish failed: {fb_result}")
+            except Exception as e:
+                logger.error(f"Facebook carousel publishing failed: {e}")
+
         # Record entries in the images_god database table
         if self.use_database and self.db:
             session = self.db._get_session()
@@ -520,7 +551,8 @@ class VideoUploadPipeline:
                             description=caption or "",
                             yt_posted=False,
                             insta_posted=insta_posted,
-                            posted=insta_posted
+                            fb_posted=fb_posted,
+                            posted=insta_posted or fb_posted
                         )
                         session.add(img_record)
                     session.commit()
@@ -531,13 +563,13 @@ class VideoUploadPipeline:
                 finally:
                     session.close()
 
-        return insta_posted
+        return insta_posted or fb_posted
 
     def save_metadata(self, db_id: int | None, video_path: str, gcp_url: str | None, 
                       gcp_filename: str | None, signed_url: str | None, 
                       yt_video_id: str | None, insta_post_id: str | None,
                       title: str, description: str, prompt: str, 
-                      yt_posted: bool, insta_posted: bool):
+                      yt_posted: bool, insta_posted: bool, fb_posted: bool = False):
         """
         Persists run metadata to the database, updating both queues and execution logs.
         """
@@ -548,6 +580,8 @@ class VideoUploadPipeline:
                     self.db.mark_video_yt_posted(db_id)
                 if insta_posted:
                     self.db.mark_video_insta_posted(db_id)
+                if fb_posted:
+                    self.db.mark_video_fb_posted(db_id)
 
             session = self.db._get_session()
             if session:
@@ -565,7 +599,8 @@ class VideoUploadPipeline:
                         alt_text=title[:255] if title else "",
                         description=description or "",
                         yt_posted=yt_posted,
-                        insta_posted=insta_posted
+                        insta_posted=insta_posted,
+                        fb_posted=fb_posted
                     )
                     session.add(video_record)
                     session.commit()
@@ -649,6 +684,28 @@ class VideoUploadPipeline:
         else:
             logger.warning("No signed/public URL available. Skipping Instagram publish.")
 
+        # Publish to Facebook Reels
+        fb_posted = False
+        if self.facebook:
+            logger.info("Publishing Reel to Facebook...")
+            fb_description = ""
+            if title:
+                fb_description += f"{title}\n\n"
+            fb_description += f"{caption or ''}"
+            if hashtags:
+                formatted_hash = " ".join([h if h.startswith('#') else f"#{h}" for h in hashtags])
+                fb_description += f"\n\n{formatted_hash}"
+
+            try:
+                fb_result = self.facebook.upload_reel(video_path=video_path, description=fb_description)
+                if fb_result and fb_result.get("id"):
+                    logger.info(f"Facebook Reel publish success. Post ID: {fb_result.get('id')}")
+                    fb_posted = True
+                else:
+                    logger.error(f"Facebook Reel publish failed: {fb_result}")
+            except Exception as e:
+                logger.error(f"Facebook Reel publishing failed: {e}")
+
         if self.use_database and self.db:
             self.save_metadata(
                 db_id=db_id,
@@ -662,10 +719,11 @@ class VideoUploadPipeline:
                 description=caption,
                 prompt=prompt,
                 yt_posted=yt_posted,
-                insta_posted=insta_posted
+                insta_posted=insta_posted,
+                fb_posted=fb_posted
             )
 
-        return yt_posted or insta_posted
+        return yt_posted or insta_posted or fb_posted
 
     def process_database_queue(self) -> bool:
         """

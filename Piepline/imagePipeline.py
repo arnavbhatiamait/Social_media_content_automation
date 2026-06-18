@@ -30,6 +30,20 @@ class ImageUploadPipeline:
 
         self.insta = InstaSetup()
 
+        # Instantiate FacebookPublisher
+        try:
+            from Facebook_upload.facebook_config import FacebookPublisher
+            fb_page_id = os.getenv("FB_PAGE_ID")
+            fb_access_token = os.getenv("FB_ACCESS_TOKEN")
+            if fb_page_id and fb_access_token:
+                self.facebook = FacebookPublisher(page_id=fb_page_id, access_token=fb_access_token)
+            else:
+                logger.warning("Facebook credentials (FB_PAGE_ID/FB_ACCESS_TOKEN) not found in env. Running with facebook=None.")
+                self.facebook = None
+        except Exception as e:
+            logger.error(f"Could not initialize FacebookPublisher: {e}")
+            self.facebook = None
+
         # Conditionally initialize GCP bucket storage
         if self.use_storage:
             try:
@@ -198,7 +212,7 @@ class ImageUploadPipeline:
 
     def save_metadata(self, db_id: int | None, image_path: str, gcp_url: str | None, 
                       gcp_filename: str | None, signed_url: str | None, 
-                      caption: str, prompt: str, insta_posted: bool):
+                      caption: str, prompt: str, insta_posted: bool, fb_posted: bool = False):
         """
         Persists run metadata to the database, updating both queues and execution history logs.
         """
@@ -207,6 +221,8 @@ class ImageUploadPipeline:
                 self.db.mark_image_generated(db_id)
                 if insta_posted:
                     self.db.mark_image_insta_posted(db_id)
+                if fb_posted:
+                    self.db.mark_image_fb_posted(db_id)
 
             session = self.db._get_session()
             if session:
@@ -228,7 +244,8 @@ class ImageUploadPipeline:
                         description=caption or "",
                         yt_posted=False,
                         insta_posted=insta_posted,
-                        posted=insta_posted
+                        fb_posted=fb_posted,
+                        posted=insta_posted or fb_posted
                     )
                     session.add(img_record)
                     session.commit()
@@ -243,7 +260,7 @@ class ImageUploadPipeline:
 
     def run_pipeline_for_single_image(self, image_path: str, caption: str, prompt: str = "", db_id: int = None) -> bool:
         """
-        Runs the full sequence: uploads local files, publishes to Instagram, and logs to DB.
+        Runs the full sequence: uploads local files, publishes to Instagram and Facebook, and logs to DB.
         """
         logger.info(f"Running sub-pipeline for: {image_path}")
         is_local = not (image_path.startswith("http://") or image_path.startswith("https://"))
@@ -258,16 +275,28 @@ class ImageUploadPipeline:
                 signed_url = upload_info.get("signed_url")
             else:
                 logger.warning(f"Could not upload local file '{image_path}' to storage. Instagram requires a public URL.")
-                return False
         else:
             signed_url = image_path
 
         insta_posted = self.upload_image_insta(signed_url, caption)
 
-        if self.use_database and self.db:
-            self.save_metadata(db_id, image_path, gcp_url, gcp_filename, signed_url, caption, prompt, insta_posted)
+        fb_posted = False
+        if self.facebook:
+            logger.info("Publishing image post to Facebook...")
+            try:
+                result = self.facebook.post_image(image_path=image_path, caption=caption)
+                if result and result.get("id"):
+                    logger.info(f"Facebook publish success. Post ID: {result.get('id')}")
+                    fb_posted = True
+                else:
+                    logger.error(f"Facebook publish failed: {result}")
+            except Exception as e:
+                logger.error(f"Facebook publishing failed: {e}")
 
-        return insta_posted
+        if self.use_database and self.db:
+            self.save_metadata(db_id, image_path, gcp_url, gcp_filename, signed_url, caption, prompt, insta_posted, fb_posted)
+
+        return insta_posted or fb_posted
 
     def generate_and_process_llm(self, deity_name: str = None, caption_override: str = None, db_id: int = None) -> bool:
         """

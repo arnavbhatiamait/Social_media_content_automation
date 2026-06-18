@@ -8,8 +8,9 @@ from pathlib import Path
 from sys import path 
 path.append(str(Path(__file__).resolve().parent.parent))  
 
-from logs_setup.logger import setup_logger
-logger = setup_logger("FacebookPublisher")
+from logs_setup.logger import Logger
+logger = Logger(name="FacebookPublisher", log_file="logs/facebook_publisher.log").get_logger()
+
 
 
 
@@ -54,22 +55,28 @@ class FacebookPublisher:
 
         url = self._make_url(f"{self.page_id}/photos")
         logger.debug(f"Sending image post request to {url} with image {image_path}")
-        with open(image_path, "rb") as image:
-
-            files = {
-                "source": image
-            }
-
+        
+        if image_path.startswith("http://") or image_path.startswith("https://"):
             data = {
+                "url": image_path,
                 "caption": caption,
                 "access_token": self.access_token
             }
-
-            response = requests.post(
-                url,
-                files=files,
-                data=data
-            )
+            response = requests.post(url, data=data)
+        else:
+            with open(image_path, "rb") as image:
+                files = {
+                    "source": image
+                }
+                data = {
+                    "caption": caption,
+                    "access_token": self.access_token
+                }
+                response = requests.post(
+                    url,
+                    files=files,
+                    data=data
+                )
 
         logger.debug(f"Image post response: {response.json()}")
         response.raise_for_status()
@@ -196,29 +203,60 @@ class FacebookPublisher:
         video_path: str,
         description: str = ""
     ):
-
-        url = self._make_url(
-            f"{self.page_id}/video_reels"
-        )
+        url = self._make_url(f"{self.page_id}/video_reels")
         logger.debug(f"Constructed reel upload URL: {url}")
 
-        with open(video_path, "rb") as video:
-
-            files = {
-                "source": video
+        # Step 1: START
+        logger.info("Initializing Reel upload (START phase)...")
+        init_res = requests.post(
+            url,
+            data={
+                "upload_phase": "START",
+                "access_token": self.access_token
             }
+        )
+        init_res.raise_for_status()
+        init_data = init_res.json()
+        video_id = init_data.get("video_id")
+        upload_url = init_data.get("upload_url")
 
-            data = {
+        if not video_id or not upload_url:
+            raise RuntimeError(f"Failed to initialize Facebook Reel upload: {init_data}")
+
+        # Step 2: Upload Video File bytes
+        logger.info(f"Uploading Reel file bytes ({os.path.getsize(video_path)} bytes)...")
+        file_size = os.path.getsize(video_path)
+        headers = {
+            "Authorization": f"OAuth {self.access_token}",
+            "offset": "0",
+            "file_size": str(file_size),
+            "Content-Type": "application/octet-stream"
+        }
+
+        with open(video_path, "rb") as f:
+            upload_res = requests.post(upload_url, headers=headers, data=f)
+        upload_res.raise_for_status()
+        
+        # Step 3: FINISH (Publish)
+        logger.info("Finishing Reel upload (FINISH phase)...")
+        publish_res = requests.post(
+            url,
+            data={
+                "upload_phase": "FINISH",
+                "video_id": video_id,
+                "video_state": "PUBLISHED",
                 "description": description,
                 "access_token": self.access_token
             }
-
-            response = requests.post(
-                url,
-                files=files,
-                data=data
-            )
-            logger.debug(f"Reel upload response: {response.json()}")
-        response.raise_for_status()
-
-        return response.json()
+        )
+        publish_res.raise_for_status()
+        
+        # Format return payload to include the generated post/video ID for logging consistency
+        result = publish_res.json()
+        if "post_id" in result:
+            result["id"] = result["post_id"]
+        elif "video_id" in result:
+            result["id"] = result["video_id"]
+            
+        logger.info(f"Facebook Reel published successfully. ID: {result.get('id')}")
+        return result

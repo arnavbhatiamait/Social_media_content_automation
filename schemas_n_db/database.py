@@ -58,6 +58,41 @@ if USE_DATABASE:
     )
 
     Base.metadata.create_all(engine)
+    
+    # Run auto-migrations to add Facebook columns if they do not exist
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            # Check and add fb_posted to images_god
+            res = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='images_god' AND column_name='fb_posted'"))
+            if not res.fetchone():
+                conn.execute(text("ALTER TABLE images_god ADD COLUMN fb_posted BOOLEAN DEFAULT FALSE"))
+                conn.commit()
+                logger.info("Auto-migration: Added fb_posted column to images_god table.")
+
+            # Check and add fb_posted to videos_god
+            res = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='videos_god' AND column_name='fb_posted'"))
+            if not res.fetchone():
+                conn.execute(text("ALTER TABLE videos_god ADD COLUMN fb_posted BOOLEAN DEFAULT FALSE"))
+                conn.commit()
+                logger.info("Auto-migration: Added fb_posted column to videos_god table.")
+
+            # Check and add fb_post to videos_on_demand
+            res = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='videos_on_demand' AND column_name='fb_post'"))
+            if not res.fetchone():
+                conn.execute(text("ALTER TABLE videos_on_demand ADD COLUMN fb_post BOOLEAN DEFAULT FALSE"))
+                conn.commit()
+                logger.info("Auto-migration: Added fb_post column to videos_on_demand table.")
+
+            # Check and add fb_post to images_on_demand
+            res = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='images_on_demand' AND column_name='fb_post'"))
+            if not res.fetchone():
+                conn.execute(text("ALTER TABLE images_on_demand ADD COLUMN fb_post BOOLEAN DEFAULT FALSE"))
+                conn.commit()
+                logger.info("Auto-migration: Added fb_post column to images_on_demand table.")
+    except Exception as migration_err:
+        logger.error(f"Auto-migration failed (could be sqlite/non-postgres or permission issue): {migration_err}")
+
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     logger.info("Database connected and tables ensured.")
 else:
@@ -264,6 +299,29 @@ class DatabaseOperations:
         finally:
             session.close()
 
+    def mark_video_fb_posted(self, video_id: int) -> bool:
+        """Set fb_post=True for a videos_on_demand row."""
+        if not self._db_enabled:
+            self._no_db_warning("mark_video_fb_posted")
+            return False
+
+        session = self._get_session()
+        try:
+            row = session.get(videos_on_demand, video_id)
+            if row is None:
+                logger.warning(f"videos_on_demand id={video_id} not found.")
+                return False
+            row.fb_post = True
+            session.commit()
+            logger.info(f"videos_on_demand id={video_id} marked as fb_post=True.")
+            return True
+        except Exception as exc:
+            session.rollback()
+            logger.exception(f"mark_video_fb_posted failed: {exc}")
+            return False
+        finally:
+            session.close()
+
     # -------------------------------------------------------------- #
     #  images_on_demand
     # -------------------------------------------------------------- #
@@ -402,6 +460,29 @@ class DatabaseOperations:
         except Exception as exc:
             session.rollback()
             logger.exception(f"mark_image_insta_posted failed: {exc}")
+            return False
+        finally:
+            session.close()
+
+    def mark_image_fb_posted(self, image_id: int) -> bool:
+        """Set fb_post=True for an images_on_demand row."""
+        if not self._db_enabled:
+            self._no_db_warning("mark_image_fb_posted")
+            return False
+
+        session = self._get_session()
+        try:
+            row = session.get(images_on_demand, image_id)
+            if row is None:
+                logger.warning(f"images_on_demand id={image_id} not found.")
+                return False
+            row.fb_post = True
+            session.commit()
+            logger.info(f"images_on_demand id={image_id} marked as fb_post=True.")
+            return True
+        except Exception as exc:
+            session.rollback()
+            logger.exception(f"mark_image_fb_posted failed: {exc}")
             return False
         finally:
             session.close()
