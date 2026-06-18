@@ -65,6 +65,8 @@ jobs:
           IS_DOCKER: "False"
           VEO: ${{ secrets.VEO }}
           VEO_MODEL_NAME: ${{ secrets.VEO_MODEL_NAME }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
         run: python main.py 
 
       # - name: Commit and push changes to video_prompts.txt
