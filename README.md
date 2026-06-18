@@ -175,6 +175,7 @@ USE_DATABASE=TRUE
 # Google Cloud Storage & Credentials
 USE_CLOUD_SAVE=True
 GCP_CREDENTIALS_PATH=gcp_secrets.json
+# GCP_CREDENTIALS_JSON='{"type": "service_account", ...}'  # Alternative: raw service account JSON string
 GCP_BUCKET_NAME=your_gcs_bucket_name
 PROJECT_ID=your_gcp_project_id
 GCP_LOCATION=us-central1
@@ -191,6 +192,10 @@ META_APP_ID=your_meta_app_id
 INSTAGRAM_APP_SECRET=your_instagram_app_secret
 INSTAGRAM_ACCESS_TOKEN=your_long_lived_user_access_token
 INSTAGRAM_ACCOUNT_ID=your_instagram_business_account_id
+
+# Facebook API Config
+FB_PAGE_ID=your_facebook_page_id
+FB_ACCESS_TOKEN=your_long_lived_page_access_token
 
 # Subtitle generation flag for video pipeline (TRUE/FALSE)
 ADD_SUBTITLES=FALSE
@@ -235,6 +240,8 @@ To configure all external services, credentials, and cron jobs, follow the step-
 5.  ⚙️ **[GitHub Actions & Secrets Setup](docs/setup_github_actions.md)**: Set up cron scheduling and securely pass JSON keys/secrets inside workflows.
 6.  ✍️ **[Customizing Prompts & Queue](docs/customizing_prompts.md)**: Learn how the prompt queues are processed and how to add custom deities/visual parameters.
 7.  🐳 **[Docker Environment Setup](docs/setup_docker.md)**: Build and run the entire automation pipeline within a self-contained Docker container.
+8.  📘 **[Facebook API Setup](docs/setup_facebook.md)**: Set up a Meta App, Page access permissions, generate long-lived Page tokens, and verify posts and Reels.
+9.  ⚡ **[Vercel Website Deployment](docs/setup_vercel.md)**: Deploy the Next.js administration panel to Vercel, integrate Neon PostgreSQL, and configure GCP environment variables.
 
 ---
 

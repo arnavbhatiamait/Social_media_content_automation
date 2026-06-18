@@ -3,11 +3,18 @@ import path from 'path';
 import fs from 'fs';
 
 const credentialsPath = process.env.GCP_CREDENTIALS_PATH;
+const credentialsJson = process.env.GCP_CREDENTIALS_JSON;
 const bucketName = process.env.GCP_BUCKET_NAME || 'databucket_reels_photos';
 
 let storageOptions: any = {};
 
-if (credentialsPath) {
+if (credentialsJson) {
+  try {
+    storageOptions.credentials = JSON.parse(credentialsJson);
+  } catch (err) {
+    console.error("Failed to parse GCP_CREDENTIALS_JSON:", err);
+  }
+} else if (credentialsPath) {
   // Resolve relative path against the application root
   const resolvedPath = path.resolve(process.cwd(), credentialsPath);
   if (fs.existsSync(resolvedPath)) {
