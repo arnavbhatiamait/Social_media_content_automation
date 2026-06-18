@@ -1,0 +1,107 @@
+name: Cron Workflow for Youtube and Insta
+
+on:
+workflow_dispatch:
+schedule:
+- cron: "30 6 * * *"   # 12:00 PM IST
+- cron: "30 12 * * *"  # 06:00 PM IST
+
+permissions:
+contents: write
+
+jobs:
+run-pipeline:
+runs-on: ubuntu-latest
+
+```
+timeout-minutes: 120
+
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
+
+  - name: Setup Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: "3.10"
+      cache: "pip"
+
+  - name: Verify FFmpeg
+    run: |
+      which ffmpeg
+      which ffprobe
+      ffmpeg -version
+      ffprobe -version
+
+  - name: Upgrade Pip
+    run: |
+      python -m pip install --upgrade pip setuptools wheel
+
+  - name: Install Dependencies
+    run: |
+      pip install -r requirements.txt
+
+  - name: Write Secret Files
+    run: |
+      cat << 'EOF' > gcp_secrets.json
+      ${{ secrets.GCP_SECRETS_JSON }}
+      EOF
+
+      cat << 'EOF' > token.json
+      ${{ secrets.YT_TOKEN_JSON }}
+      EOF
+
+      cat << 'EOF' > client_secret.json
+      ${{ secrets.YT_CLIENT_SECRET_JSON }}
+      EOF
+
+  - name: Run Full Pipeline
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      USE_CLOUD_SAVE: "True"
+      GCP_CREDENTIALS_PATH: "gcp_secrets.json"
+      USE_DATABASE: "TRUE"
+      GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
+
+      INSTAGRAM_APP_SECRET: ${{ secrets.INSTAGRAM_APP_SECRET }}
+      META_APP_ID: ${{ secrets.META_APP_ID }}
+      INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+      INSTAGRAM_ACCOUNT_ID: ${{ secrets.INSTAGRAM_ACCOUNT_ID }}
+      INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+
+      PROJECT_ID: ${{ secrets.PROJECT_ID }}
+      GCP_LOCATION: ${{ secrets.GCP_LOCATION }}
+
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      ADD_SUBTITLES: "FALSE"
+      SLEEP_TIME_DOCKER: "18000"
+      IS_DOCKER: "False"
+
+      VEO: ${{ secrets.VEO }}
+      VEO_MODEL_NAME: ${{ secrets.VEO_MODEL_NAME }}
+
+    run: |
+      python main.py
+
+  - name: Upload Logs On Failure
+    if: failure()
+    uses: actions/upload-artifact@v4
+    with:
+      name: workflow-logs
+      path: |
+        logs/
+        *.log
+      if-no-files-found: ignore
+
+  # Uncomment if you need auto-commit
+  # - name: Commit and Push Changes
+  #   run: |
+  #     git config --global user.name "github-actions[bot]"
+  #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+  #     git add video_prompts.txt
+  #     git diff --quiet && git diff --staged --quiet || \
+  #     (git commit -m "chore: update video prompts queue [skip ci]" && git push)
+```
