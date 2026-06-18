@@ -20,8 +20,10 @@ class FacebookPublisher:
     def __init__(self, page_id: str, access_token: str):
         self.page_id = page_id
         self.access_token = access_token
+        logger.info("FacebookPublisher initialized")
 
     def _make_url(self, endpoint: str):
+        logger.debug(f"Constructing URL for endpoint: {endpoint}")
         return f"{self.GRAPH_URL}/{endpoint}"
 
     ##################################################################
@@ -37,8 +39,10 @@ class FacebookPublisher:
             "access_token": self.access_token
         }
 
+        logger.debug(f"Sending text post request to {url}")
         response = requests.post(url, data=payload)
         response.raise_for_status()
+        logger.info("Text post successful")
 
         return response.json()
 
@@ -49,7 +53,7 @@ class FacebookPublisher:
     def post_image(self, image_path: str, caption: str = ""):
 
         url = self._make_url(f"{self.page_id}/photos")
-
+        logger.debug(f"Sending image post request to {url} with image {image_path}")
         with open(image_path, "rb") as image:
 
             files = {
@@ -67,6 +71,7 @@ class FacebookPublisher:
                 data=data
             )
 
+        logger.debug(f"Image post response: {response.json()}")
         response.raise_for_status()
 
         return response.json()
@@ -82,9 +87,11 @@ class FacebookPublisher:
     ):
 
         media_ids = []
+        logger.debug(f"Uploading {len(image_paths)} images for carousel post")
 
         for image_path in image_paths:
 
+            logger.debug(f"Uploading image {image_path} for carousel post")
             upload_url = self._make_url(
                 f"{self.page_id}/photos"
             )
@@ -105,6 +112,7 @@ class FacebookPublisher:
                     files=files,
                     data=data
                 )
+                logger.debug(f"Image upload response: {response.json()}")
 
             response.raise_for_status()
 
@@ -119,6 +127,7 @@ class FacebookPublisher:
                 {"media_fbid": media_id}
             )
 
+        logger.debug(f"Creating carousel post with media IDs: {media_ids}")
         post_url = self._make_url(
             f"{self.page_id}/feed"
         )
@@ -127,7 +136,7 @@ class FacebookPublisher:
             "message": caption,
             "access_token": self.access_token
         }
-
+        logger.debug(f"Payload for carousel post: {payload}")
         for idx, media in enumerate(attached_media):
             payload[f"attached_media[{idx}]"] = str(media)
 
@@ -135,7 +144,7 @@ class FacebookPublisher:
             post_url,
             data=payload
         )
-
+        logger.debug(f"Carousel post response: {response.json()}")
         response.raise_for_status()
 
         return response.json()
@@ -150,11 +159,11 @@ class FacebookPublisher:
         title: str = "",
         description: str = ""
     ):
-
+        logger.debug(f"Uploading video {video_path} with title '{title}' and description '{description}'")
         url = self._make_url(
             f"{self.page_id}/videos"
         )
-
+        logger.debug(f"Constructed video upload URL: {url}")
         with open(video_path, "rb") as video:
 
             files = {
@@ -173,6 +182,7 @@ class FacebookPublisher:
                 data=data
             )
 
+        logger.debug(f"Video upload response: {response.json()}")
         response.raise_for_status()
 
         return response.json()
@@ -190,6 +200,7 @@ class FacebookPublisher:
         url = self._make_url(
             f"{self.page_id}/video_reels"
         )
+        logger.debug(f"Constructed reel upload URL: {url}")
 
         with open(video_path, "rb") as video:
 
@@ -207,7 +218,7 @@ class FacebookPublisher:
                 files=files,
                 data=data
             )
-
+            logger.debug(f"Reel upload response: {response.json()}")
         response.raise_for_status()
 
         return response.json()
