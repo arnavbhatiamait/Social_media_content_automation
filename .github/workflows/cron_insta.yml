@@ -22,10 +22,10 @@ jobs:
           python-version: "3.10"
           cache: "pip"
 
-      - name: Install FFmpeg
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+      # - name: Install FFmpeg
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y ffmpeg
 
       - name: Verify FFmpeg
         run: |
