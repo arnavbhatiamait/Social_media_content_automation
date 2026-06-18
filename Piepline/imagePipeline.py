@@ -108,6 +108,9 @@ class ImageUploadPipeline:
         if not output_path:
             output_path = f"images/gen_{uuid.uuid4().hex[:8]}.png"
 
+        flux_err_saved = None
+        sdxl_err_saved = None
+
         # Try Flux
         try:
             logger.info("Attempting image generation using Flux...")
@@ -123,6 +126,7 @@ class ImageUploadPipeline:
             logger.info(f"Saved generated Flux image to: {output_path}")
             return output_path
         except Exception as flux_err:
+            flux_err_saved = flux_err
             logger.error(f"Flux image generation failed: {flux_err}. Trying Free SDXL fallback...")
 
         # Fallback 1: Free Stable Diffusion XL
@@ -145,6 +149,7 @@ class ImageUploadPipeline:
             logger.info(f"Saved generated SDXL image to: {output_path}")
             return output_path
         except Exception as sdxl_err:
+            sdxl_err_saved = sdxl_err
             logger.error(f"SDXL fallback also failed: {sdxl_err}. Trying Vertex AI Imagen fallback...")
 
         # Fallback 2: Vertex AI Imagen (iamagegen.py)
@@ -160,7 +165,12 @@ class ImageUploadPipeline:
                 raise RuntimeError("No image returned/saved by Vertex AI model via iamagegen.py.")
         except Exception as imagen_err:
             logger.error(f"All image generation fallbacks failed: {imagen_err}")
-            raise RuntimeError(f"All image generation attempts failed: {imagen_err}") from flux_err
+            raise RuntimeError(
+                f"All image generation attempts failed. "
+                f"Flux error: {flux_err_saved}, "
+                f"SDXL error: {sdxl_err_saved}, "
+                f"Vertex Imagen error: {imagen_err}"
+            ) from (flux_err_saved or sdxl_err_saved or imagen_err)
 
     def upload_image_storage(self, image_path: str) -> dict:
         """
