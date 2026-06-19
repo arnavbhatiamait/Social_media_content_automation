@@ -55,6 +55,7 @@ if USE_DATABASE:
         images_on_demand,
         Video_God,
         Images_God,
+        StaticPostHistory,
     )
 
     Base.metadata.create_all(engine)
@@ -573,6 +574,140 @@ class DatabaseOperations:
         if gcp_result:
             return gcp_result.get("public_url") or gcp_result.get("gs_url")
         return None
+
+    # -------------------------------------------------------------- #
+    #  static_posts_history
+    # -------------------------------------------------------------- #
+
+    def get_recent_static_topics(self, limit: int = 5) -> list:
+        """
+        Retrieves the most recently researched/posted topics.
+        """
+        if not self._db_enabled:
+            self._no_db_warning("get_recent_static_topics")
+            return []
+
+        session = self._get_session()
+        try:
+            from schemas_n_db.schema import StaticPostHistory
+            rows = (
+                session.query(StaticPostHistory.topic)
+                .order_by(StaticPostHistory.created_at.desc())
+                .limit(limit)
+                .all()
+            )
+            # Extracted list of topics
+            topics = [r[0] for r in rows]
+            logger.info(f"Retrieved recent static post topics: {topics}")
+            return topics
+        except Exception as exc:
+            logger.exception(f"get_recent_static_topics failed: {exc}")
+            return []
+        finally:
+            session.close()
+
+    def save_static_post_history(
+        self,
+        topic: str,
+        post_type: str,
+        post_title: str,
+        hook: str,
+        summary: str,
+        technical_breakdown: list,
+        industry_impact: list,
+        key_takeaways: list,
+        engagement_question: str,
+        hashtags: list,
+        linkedin_post: str,
+        local_images: list = None,
+        gcp_urls: list = None,
+        linkedin_posted: bool = False,
+        insta_posted: bool = False,
+        fb_posted: bool = False,
+    ) -> Optional[int]:
+        """
+        Saves a static post generation record to static_posts_history.
+        """
+        if not self._db_enabled:
+            self._no_db_warning("save_static_post_history")
+            return None
+
+        import json
+        session = self._get_session()
+        try:
+            from schemas_n_db.schema import StaticPostHistory
+            
+            local_images_str = ",".join(local_images) if local_images else ""
+            gcp_urls_str = ",".join(gcp_urls) if gcp_urls else ""
+
+            post_record = StaticPostHistory(
+                topic=topic,
+                post_type=post_type,
+                post_title=post_title,
+                hook=hook,
+                summary=summary,
+                technical_breakdown=json.dumps(technical_breakdown) if technical_breakdown else "[]",
+                industry_impact=json.dumps(industry_impact) if industry_impact else "[]",
+                key_takeaways=json.dumps(key_takeaways) if key_takeaways else "[]",
+                engagement_question=engagement_question,
+                hashtags=json.dumps(hashtags) if hashtags else "[]",
+                linkedin_post=linkedin_post,
+                local_images=local_images_str,
+                gcp_urls=gcp_urls_str,
+                linkedin_posted=linkedin_posted,
+                insta_posted=insta_posted,
+                fb_posted=fb_posted,
+            )
+            session.add(post_record)
+            session.commit()
+            logger.info(f"Saved static post history record. ID: {post_record.id}")
+            return post_record.id
+        except Exception as exc:
+            session.rollback()
+            logger.exception(f"save_static_post_history failed: {exc}")
+            return None
+        finally:
+            session.close()
+
+    def mark_static_post_published(
+        self,
+        post_id: int,
+        linkedin: bool = None,
+        insta: bool = None,
+        fb: bool = None
+    ) -> bool:
+        """
+        Updates the platform posted flags for a specific static post.
+        """
+        if not self._db_enabled:
+            self._no_db_warning("mark_static_post_published")
+            return False
+
+        session = self._get_session()
+        try:
+            from schemas_n_db.schema import StaticPostHistory
+            row = session.get(StaticPostHistory, post_id)
+            if row is None:
+                logger.warning(f"StaticPostHistory id={post_id} not found.")
+                return False
+            
+            if linkedin is not None:
+                row.linkedin_posted = linkedin
+            if insta is not None:
+                row.insta_posted = insta
+            if fb is not None:
+                row.fb_posted = fb
+                
+            session.commit()
+            logger.info(f"StaticPostHistory id={post_id} publication flags updated.")
+            return True
+        except Exception as exc:
+            session.rollback()
+            logger.exception(f"mark_static_post_published failed: {exc}")
+            return False
+        finally:
+            session.close()
+
 
 
 # ------------------------------------------------------------------ #

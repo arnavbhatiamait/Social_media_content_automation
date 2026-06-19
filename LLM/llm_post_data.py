@@ -2,6 +2,33 @@ import time
 import asyncio
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_core.output_parsers import JsonOutputParser
+from pydantic import BaseModel, Field
+from typing import List
+
+class Source(BaseModel):
+    title: str = Field(description="Title of the source article or paper")
+    url: str = Field(description="URL of the source")
+    publication_date: str = Field(description="Publication date of the source")
+
+class LinkedInPostOutput(BaseModel):
+    topic: str = Field(description="The general AI topic being discussed")
+    category: str = Field(description="The post type/category: breaking_news, technical_deep_dive, thought_leadership")
+    post_title: str = Field(description="Title of the post")
+    post_type: str = Field(description="The classification matching the category")
+    hook: str = Field(description="An engaging hook line to start the post")
+    summary: str = Field(description="A brief high-level summary of the update")
+    technical_breakdown: List[str] = Field(description="Detailed technical points for engineers")
+    industry_impact: List[str] = Field(description="Key business or developer impact points")
+    key_takeaways: List[str] = Field(description="3-5 bulleted key takeaways")
+    engagement_question: str = Field(description="An engaging question for the audience")
+    hashtags: List[str] = Field(description="5 to 10 relevant hashtags starting with #")
+    estimated_engagement_score: float = Field(description="Estimated score from 0.0 to 1.0")
+    confidence_score: float = Field(description="Confidence score from 0.0 to 1.0")
+    sources: List[Source] = Field(description="List of verified sources used")
+    image_prompt: str = Field(description="A detailed description for generating a static post image")
+    linkedin_post: str = Field(description="The full formatted, ready-to-publish LinkedIn post text")
+    created_at: str = Field(description="Current ISO timestamp")
+
 
 try:
     from logs_setup.logger import Logger
@@ -294,6 +321,45 @@ make sure to generate a detailed prompt and description based on the above syste
         print(type(messages), messages)
         response = chain.invoke(messages)
         return response
+
+    def generate_ai_news_post(self, topic: str, post_type: str, search_results: str) -> dict:
+        self.logger.info(f"Generating AI news post for topic: '{topic}' | type: '{post_type}'")
+        
+        # Import the prompt
+        from prompts.prompts_posts.ai_news_prompt import SYSTEM_PROMPT
+        
+        # Create parser
+        parser = JsonOutputParser(pydantic_object=LinkedInPostOutput)
+        format_instructions = parser.get_format_instructions()
+        
+        full_prompt = SYSTEM_PROMPT + f"\n\nIMPORTANT Format instructions:\n{format_instructions}"
+        
+        human_message_content = f"""
+        Please research/generate a post on the topic: "{topic}" of type: "{post_type}".
+        
+        Here is the research context collected from search tools for your analysis:
+        {search_results}
+        
+        Guidelines:
+        1. Select the single most important and verified story/paper from the context related to "{topic}".
+        2. Generate a post of type "{post_type}".
+        3. Populate all fields of the JSON schema.
+        4. In the "image_prompt" field, write a concise image generation prompt that will be passed to a text-to-image generator (e.g. "An elegant visual representing AI agents coordinating tasks, golden-hour light").
+        5. Return ONLY a valid JSON object matching the requested schema.
+        """
+        
+        messages = [
+            SystemMessage(content=full_prompt),
+            HumanMessage(content=human_message_content)
+        ]
+        
+        chain = self.llm | parser
+        start_time = time.perf_counter()
+        response = chain.invoke(messages)
+        latency = time.perf_counter() - start_time
+        self.logger.info(f"AI news post generated successfully. Latency: {latency:.2f}s")
+        return response
+
 
 
 if __name__ == "__main__":

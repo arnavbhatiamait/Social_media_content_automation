@@ -167,6 +167,54 @@ class LinkedInPublisher:
             "status": "success"
         }
 
+    def create_multi_image_post(
+        self,
+        text: str,
+        image_paths: list
+    ) -> dict:
+        media_list = []
+        for path in image_paths:
+            asset = self.upload_image(path)
+            media_list.append({
+                "status": "READY",
+                "media": asset
+            })
+
+        payload = {
+            "author": f"urn:li:organization:{self.organization_id}",
+            "lifecycleState": "PUBLISHED",
+            "specificContent": {
+                "com.linkedin.ugc.ShareContent": {
+                    "shareCommentary": {
+                        "text": text
+                    },
+                    "shareMediaCategory": "IMAGE",
+                    "media": media_list
+                }
+            },
+            "visibility": {
+                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+            }
+        }
+
+        response = requests.post(
+            f"{self.BASE_URL}/ugcPosts",
+            headers=self.headers,
+            json=payload
+        )
+
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print("HTTP Status Code:", response.status_code)
+            print("Response Body:", response.text)
+            raise e
+
+        return response.json() if response.text else {
+            "status": "success"
+        }
+
+
 
 if __name__ == "__main__":
     import os 

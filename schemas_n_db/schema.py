@@ -415,3 +415,30 @@ class Analytics(Base):
     content: Mapped["Content"] = relationship(
         back_populates="analytics"
     )
+
+
+# =====================================================
+# STATIC POST HISTORY
+# =====================================================
+class StaticPostHistory(Base):
+    __tablename__ = "static_posts_history"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    topic: Mapped[str] = mapped_column(String(255))
+    post_type: Mapped[str] = mapped_column(String(100))
+    post_title: Mapped[str] = mapped_column(String(500))
+    hook: Mapped[str | None] = mapped_column(Text, nullable=True)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    technical_breakdown: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON-encoded array
+    industry_impact: Mapped[str | None] = mapped_column(Text, nullable=True)      # JSON-encoded array
+    key_takeaways: Mapped[str | None] = mapped_column(Text, nullable=True)        # JSON-encoded array
+    engagement_question: Mapped[str | None] = mapped_column(Text, nullable=True)
+    hashtags: Mapped[str | None] = mapped_column(Text, nullable=True)             # JSON-encoded array
+    linkedin_post: Mapped[str] = mapped_column(Text)
+    local_images: Mapped[str | None] = mapped_column(Text, nullable=True)         # comma-separated list of paths
+    gcp_urls: Mapped[str | None] = mapped_column(Text, nullable=True)             # comma-separated list of GCS/signed URLs
+    linkedin_posted: Mapped[bool] = mapped_column(Boolean, default=False)
+    insta_posted: Mapped[bool] = mapped_column(Boolean, default=False)
+    fb_posted: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
