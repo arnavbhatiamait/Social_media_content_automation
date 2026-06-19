@@ -27,7 +27,6 @@ class LinkedInPublisher:
         """
         Publish text-only post.
         """
-
         payload = {
             "author": f"urn:li:organization:{self.organization_id}",
             "lifecycleState": "PUBLISHED",
@@ -50,7 +49,12 @@ class LinkedInPublisher:
             json=payload
         )
 
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print("HTTP Status Code:", response.status_code)
+            print("Response Body:", response.text)
+            raise e
 
         return response.json() if response.text else {
             "status": "success"
@@ -60,7 +64,6 @@ class LinkedInPublisher:
         """
         Register image upload.
         """
-
         payload = {
             "registerUploadRequest": {
                 "recipes": [
@@ -82,7 +85,12 @@ class LinkedInPublisher:
             json=payload
         )
 
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print("HTTP Status Code:", response.status_code)
+            print("Response Body:", response.text)
+            raise e
 
         return response.json()
 
@@ -90,7 +98,6 @@ class LinkedInPublisher:
         self,
         image_path: str
     ) -> str:
-
         registration = self.register_image_upload()
 
         upload_url = registration["value"]["uploadMechanism"][
@@ -100,13 +107,17 @@ class LinkedInPublisher:
         asset = registration["value"]["asset"]
 
         with open(image_path, "rb") as image_file:
-
             upload_response = requests.put(
                 upload_url,
                 data=image_file
             )
 
-        upload_response.raise_for_status()
+        try:
+            upload_response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print("HTTP Status Code (Upload):", upload_response.status_code)
+            print("Response Body (Upload):", upload_response.text)
+            raise e
 
         return asset
 
@@ -115,7 +126,6 @@ class LinkedInPublisher:
         text: str,
         image_path: str
     ) -> dict:
-
         asset = self.upload_image(image_path)
 
         payload = {
@@ -146,15 +156,24 @@ class LinkedInPublisher:
             json=payload
         )
 
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print("HTTP Status Code:", response.status_code)
+            print("Response Body:", response.text)
+            raise e
 
         return response.json() if response.text else {
             "status": "success"
         }
 
+
 if __name__ == "__main__":
     import os 
     from dotenv import load_dotenv
     load_dotenv()
-    linkedin_publisher = LinkedInPublisher(access_token=os.environ.get("LINKEDIN_CLIENT_SECRET"), organization_id=os.environ.get("LINKEDIN_CLIENT_ID"))
-    linkedin_publisher.create_image_post(text="Test Post", image_path="person Output.jpg")
+    linkedin_publisher = LinkedInPublisher(
+        access_token=os.getenv("LINKEDIN_ACCESS_TOKEN"), 
+        organization_id=os.getenv("LINKEDIN_ORGANIZATIONAL_ID")
+    )
+    linkedin_publisher.create_image_post(text="Test Post", image_path="linkedin_post.png")
