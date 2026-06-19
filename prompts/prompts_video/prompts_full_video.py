@@ -163,6 +163,7 @@ def get_full_video_prompt(deity_input_json: dict = None) -> str:
     * Sound like a Netflix mythological documentary.
     * Be emotionally powerful, spiritually uplifting, and historically respectful.
     * Avoid repetition.
+    * MUST BE IN HINDI (written in Devanagari script). The narration text (the 'text' field under 'audio_segments') must be written in beautiful, fluent, and dramatic Hindi.
 
     Total narration length: 100-180 seconds. (Each scene should be ~12 seconds of speech).
 
@@ -171,10 +172,14 @@ def get_full_video_prompt(deity_input_json: dict = None) -> str:
     ========================
 
     Generate:
-    1. A powerful title.
-    2. A viral social media description suitable for YouTube/Facebook.
+    1. A powerful title in Hindi (using Devanagari script).
+    2. A viral social media description suitable for YouTube/Facebook in Hindi (using Devanagari script).
     3. SEO keywords.
     4. Relevant hashtags.
+
+    * The 'title' and 'description' fields MUST be written in Hindi (using Devanagari script) or a mix of Hindi and English.
+    * The 'image_prompts' MUST be written in English because image generators only understand English.
+
 
     ==================================================
     OUTPUT JSON SCHEMA
@@ -256,9 +261,9 @@ def generate_god_scene_full_prompt():
          
         json structure:
         {
-          "title": "Mahadev: The Ten Dimensions of Cosmic Consciousness",
+          "title": "महादेव: ब्रह्मांडीय चेतना के दस आयाम",
           "deity": "Lord Shiva",
-          "description": "Step into the mystical heights of Mount Kailash and behold the infinite majesty of Lord Shiva, known across the cosmos as Mahadev. Discover the ancient symbols, ethereal realms, and timeless wisdom of the supreme yogi in this full-length cinematic documentary journey. #Mahadev #LordShiva #HinduMythology #SpiritualJourney #CosmicEnergy #ShivaTandava #DivinePower",
+          "description": "माउंट कैलाश की रहस्यमयी ऊंचाइयों में कदम रखें और भगवान शिव की अनंत महिमा का दर्शन करें, जिन्हें ब्रह्मांड में महादेव के रूप में जाना जाता है। इस पूर्ण-लंबाई वाली सिनेमाई वृत्तचित्र यात्रा में सर्वोच्च योगी के प्राचीन प्रतीकों, अलौकिक लोकों और कालातीत ज्ञान की खोज करें। #Mahadev #LordShiva #HinduMythology #SpiritualJourney #CosmicEnergy #ShivaTandava #DivinePower",
           "seo_keywords": [
               "Lord Shiva",
               "Mahadev",
@@ -281,80 +286,80 @@ def generate_god_scene_full_prompt():
           "audio_segments": [
               {
                   "scene": 1,
-                  "title": "The Infinite Origin",
-                  "text": "Before the creation of time and space, there was only the infinite void. From this cosmic silence arose the supreme consciousness, Lord Shiva, manifesting on the sacred heights of Mount Kailash.",
+                  "title": "अनंत उत्पत्ति",
+                  "text": "समय और अंतरिक्ष के निर्माण से पहले, केवल एक अनंत शून्य था। इसी ब्रह्मांडीय मौन से सर्वोच्च चेतना, भगवान शिव का उदय हुआ, जो माउंट कैलाश की पवित्र ऊंचाइयों पर प्रकट हुए।",
                   "start_time_seconds": 0,
                   "end_time_seconds": 12,
                   "duration_seconds": 12
               },
               {
                   "scene": 2,
-                  "title": "The Frozen Sanctuary",
-                  "text": "Surrounded by heavy snow and a thick, sacred mist, the icy mountains of Kailash stand still. Here, in the golden hour light, Shiva dwells in his serene and untouched sanctuary.",
+                  "title": "जमा हुआ गर्भगृह",
+                  "text": "घनी बर्फ और पवित्र धुंध से घिरे कैलाश के बर्फीले पहाड़ शांत खड़े हैं। यहाँ, गोधूलि बेला की रोशनी में, शिव अपने शांत और अछूते गर्भगृह में निवास करते हैं।",
                   "start_time_seconds": 12,
                   "end_time_seconds": 24,
                   "duration_seconds": 12
               },
               {
                   "scene": 3,
-                  "title": "The Yogi's Form",
-                  "text": "His blue-grey skin is covered in sacred ash, representing the impermanence of all worldly things. With matted locks and the silver crescent moon adorning his head, he exudes a quiet power.",
+                  "title": "योगी का स्वरूप",
+                  "text": "उनकी नीली-धूसर त्वचा पवित्र भस्म से ढकी है, जो सभी सांसारिक चीजों की नश्वरता को दर्शाती है। जटाओं और मस्तक को सुशोभित करते चांदी के अर्धचंद्र के साथ, वे एक शांत शक्ति का संचार करते हैं।",
                   "start_time_seconds": 24,
                   "end_time_seconds": 36,
                   "duration_seconds": 12
               },
               {
                   "scene": 4,
-                  "title": "The Sacred River",
-                  "text": "Cascading from his matted hair, the holy waters of the River Ganga descend upon the earth. This river of purity washes away the ignorance of humanity, bringing spiritual awakening.",
+                  "title": "पावन नदी",
+                  "text": "उनकी जटाओं से बहती हुई गंगा की पवित्र धारा पृथ्वी पर अवतरित होती है। पवित्रता की यह नदी मानवता के अज्ञान को धो देती है, जिससे आध्यात्मिक जागृति आती है।",
                   "start_time_seconds": 36,
                   "end_time_seconds": 48,
                   "duration_seconds": 12
               },
               {
                   "scene": 5,
-                  "title": "The Silent Meditation",
-                  "text": "Sitting in profound, unshakable meditation, the supreme yogi is detached from all external creations. In this state of absolute stillness, he balances the forces of life and death.",
+                  "title": "मौन ध्यान",
+                  "text": "गहन, अडिग ध्यान में लीन, सर्वोच्च योगी सभी बाहरी रचनाओं से विरक्त हैं। पूर्ण स्थिरता की इस अवस्था में, वे जीवन और मृत्यु की शक्तियों को संतुलित करते हैं।",
                   "start_time_seconds": 48,
                   "end_time_seconds": 60,
                   "duration_seconds": 12
               },
               {
                   "scene": 6,
-                  "title": "The Rising Conflict",
-                  "text": "Yet, when cosmic order is threatened by dark forces, the peaceful yogi transitions. Earth and heavens tremble as the great Rudra prepares to intervene and restore the divine balance.",
+                  "title": "बढ़ता संघर्ष",
+                  "text": "फिर भी, जब ब्रह्मांडीय व्यवस्था को अंधकारमय शक्तियों से खतरा होता है, तो शांत योगी का स्वरूप बदल जाता है। जब महान रुद्र हस्तक्षेप करने और दिव्य संतुलन बहाल करने की तैयारी करते हैं, तो पृथ्वी और स्वर्ग कांप उठते हैं।",
                   "start_time_seconds": 60,
                   "end_time_seconds": 72,
                   "duration_seconds": 12
               },
               {
                   "scene": 7,
-                  "title": "The Trishul of Destruction",
-                  "text": "With a sudden motion, Shiva raises his mighty Trishul. The golden trident flashes with celestial energy, piercing through illusions and cutting down the ego of all creation.",
+                  "title": "विनाश का त्रिशूल",
+                  "text": "अचानक एक तीव्र गति के साथ, शिव अपना पराक्रमी त्रिशूल उठाते हैं। स्वर्ण त्रिशूल दिव्य ऊर्जा के साथ चमकता है, भ्रम को भेदते हुए पूरी सृष्टि के अहंकार को नष्ट कर देता है।",
                   "start_time_seconds": 72,
                   "end_time_seconds": 84,
                   "duration_seconds": 12
               },
               {
                   "scene": 8,
-                  "title": "The Damaru's Rhythm",
-                  "text": "He beats the sacred Damaru drum. Its cosmic vibrations reverberate through the galaxies, creating the primordial sound of Om, restructuring the fabric of reality itself.",
+                  "title": "डम-डम डमरू की ताल",
+                  "text": "वे पवित्र डमरू बजाते हैं। इसकी ब्रह्मांडीय तरंगें आकाशगंगाओं में गूंजती हैं, ॐ की आदिम ध्वनि का निर्माण करती हैं, और स्वयं वास्तविकता के ताने-बाने को पुनर्गठित करती हैं।",
                   "start_time_seconds": 84,
                   "end_time_seconds": 96,
                   "duration_seconds": 12
               },
               {
                   "scene": 9,
-                  "title": "The Tandava Dance",
-                  "text": "Under the celestial light of a solar eclipse, Shiva performs the Tandava, the dance of cosmic destruction and rebirth. Every step shatters the old world to pave the way for new beginnings.",
+                  "title": "तांडव नृत्य",
+                  "text": "सूर्य ग्रहण के दिव्य प्रकाश में, शिव तांडव करते हैं, जो ब्रह्मांडीय विनाश और पुनर्जन्म का नृत्य है। प्रत्येक कदम नए युग की शुरुआत का मार्ग प्रशस्त करने के लिए पुरानी दुनिया को ध्वस्त कर देता है।",
                   "start_time_seconds": 96,
                   "end_time_seconds": 108,
                   "duration_seconds": 12
               },
               {
                   "scene": 10,
-                  "title": "The Divine Grace",
-                  "text": "As the storm subsides, a warm golden aura surrounds Mahadev. Extending his hand in a gesture of ultimate protection, Bholenath showers his grace and eternal peace upon the universe.",
+                  "title": "दिव्य अनुग्रह",
+                  "text": "जैसे ही तूफान थमता है, महादेव के चारों ओर एक गर्म सुनहरा प्रभामंडल छा जाता है। परम सुरक्षा के भाव में अपना हाथ बढ़ाते हुए, भोलेनाथ ब्रह्मांड पर अपनी कृपा और शाश्वत शांति की वर्षा करते हैं।",
                   "start_time_seconds": 108,
                   "end_time_seconds": 120,
                   "duration_seconds": 12

@@ -502,6 +502,7 @@ def get_prompt():
     * Be spiritually uplifting.
     * Be historically respectful.
     * Avoid repetition.
+    * MUST BE IN HINDI (written in Devanagari script). The narration text (the 'text' field under 'audio_segments') must be written in beautiful, fluent, and dramatic Hindi.
 
     Total narration length:
     45-90 seconds.
@@ -512,10 +513,14 @@ def get_prompt():
 
     Generate:
 
-    1. A powerful title.
-    2. A viral social media description.
+    1. A powerful title in Hindi (using Devanagari script).
+    2. A viral social media description in Hindi (using Devanagari script).
     3. SEO keywords.
     4. Relevant hashtags.
+
+    * The 'title' and 'description' fields MUST be written in Hindi (using Devanagari script) or a mix of Hindi and English.
+    * The 'image_prompts' MUST be written in English because image generators only understand English.
+
 
     ==================================================
     OUTPUT JSON SCHEMA
@@ -630,9 +635,9 @@ def generate_god_scene_prompt():
         
         json structure:
         {
-    "title": "Mahadev: The Eternal Source of Cosmic Transformation",
+    "title": "महादेव: ब्रह्मांडीय परिवर्तन के शाश्वत स्रोत",
     "deity": "Lord Shiva",
-    "description": "Step into the mystical heights of Mount Kailash and behold the infinite majesty of Lord Shiva, known across the cosmos as Mahadev. Witness the calm before the cosmic storm as the ultimate protector and transformer balances the universe through profound meditation and divine power. Discover the ancient symbols, ethereal realms, and timeless wisdom of the supreme yogi in this cinematic documentary journey. #Mahadev #LordShiva #HinduMythology #SpiritualJourney #CosmicEnergy #ShivaTandava #DivinePower",
+    "description": "माउंट कैलाश की रहस्यमयी ऊंचाइयों में कदम रखें और भगवान शिव की अनंत महिमा का दर्शन करें, जिन्हें ब्रह्मांड में महादेव के रूप में जाना जाता है। इस सिनेमाई वृत्तचित्र यात्रा में सर्वोच्च योगी के प्राचीन प्रतीकों, अलौकिक लोकों और कालातीत ज्ञान की खोज करें। #Mahadev #LordShiva #HinduMythology #SpiritualJourney #CosmicEnergy #ShivaTandava #DivinePower",
     "seo_keywords": [
         "Lord Shiva",
         "Mahadev",
@@ -655,40 +660,40 @@ def generate_god_scene_prompt():
     "audio_segments": [
         {
             "scene": 1,
-            "title": "The Silent Descent",
-            "text": "Deep within the frozen, timeless peaks of Mount Kailash, an ancient stillness grips the earth. Here, wrapped in sacred mist, manifests the supreme consciousness: Mahadev, the great lord of transformation.",
+            "title": "मौन अवतरण",
+            "text": "माउंट कैलाश की जमी हुई, अनंत चोटियों के बीच, एक प्राचीन स्थिरता पृथ्वी को जकड़े हुए है। यहाँ, पवित्र धुंध में लिपटे हुए, सर्वोच्च चेतना प्रकट होती है: महादेव, परिवर्तन के महान स्वामी।",
             "start_time_seconds": 0,
             "end_time_seconds": 12,
             "duration_seconds": 12
         },
         {
             "scene": 2,
-            "title": "The Yogi's Aura",
-            "text": "His blue-grey skin is coated in sacred ash, a stark testament to the transient nature of existence. With a calm, meditative focus that stabilizes the shifting dimensions, his piercing third eye remains closed, holding back an infinite well of cosmic energy.",
+            "title": "योगी का प्रभामंडल",
+            "text": "उनकी नीली-धूसर त्वचा पवित्र भस्म से ढकी है, जो अस्तित्व की नश्वरता का एक स्पष्ट प्रमाण है। एक शांत, ध्यानमग्न ध्यान के साथ जो बदलते आयामों को स्थिर करता है, उनका तीसरा नेत्र बंद रहता है, जो ब्रह्मांडीय ऊर्जा के अनंत कुएं को रोके हुए है।",
             "start_time_seconds": 12,
             "end_time_seconds": 24,
             "duration_seconds": 12
         },
         {
             "scene": 3,
-            "title": "Lord of the Cosmic Balance",
-            "text": "Upon his head rests the silver crescent moon, anchoring the flow of time itself. As the holy waters of the River Ganga cascade from his matted locks, the majestic bull Nandi watches over his master's eternal, transcendent domain.",
+            "title": "ब्रह्मांडीय संतुलन के स्वामी",
+            "text": "उनके मस्तक पर चांदी का अर्धचंद्र विराजमान है, जो स्वयं समय के प्रवाह को नियंत्रित करता है। जैसे ही गंगा की पवित्र धारा उनकी जटाओं से बहती है, राजसी बैल नंदी अपने स्वामी के शाश्वत, पारलौकिक क्षेत्र की रखवाली करता है।",
             "start_time_seconds": 24,
             "end_time_seconds": 36,
             "duration_seconds": 12
         },
         {
             "scene": 4,
-            "title": "The Weapon of Righteousness",
-            "text": "Suddenly, a profound shift reverberates through space. In his hands, he raises the sacred Trishul, the cosmic trident that shatters illusion, while a mystical snake moves gently around his neck, symbolizing absolute mastery over death.",
+            "title": "धर्म का शस्त्र",
+            "text": "अचानक, अंतरिक्ष में एक गहरा बदलाव गूंजता है। अपने हाथों में, वे पवित्र त्रिशूल उठाते हैं, वह ब्रह्मांडीय त्रिशूल जो भ्रम को चकनाचूर कर देता है, जबकि एक रहस्यमयी सांप उनके गले के चारों ओर धीरे-धीरे घूमता है, जो मृत्यु पर पूर्ण विजय का प्रतीक है।",
             "start_time_seconds": 36,
             "end_time_seconds": 48,
             "duration_seconds": 12
         },
         {
             "scene": 5,
-            "title": "The Ultimate Grace",
-            "text": "As the heavens part, a magnificent divine halo illuminates the mountaintop. With infinite compassion, Bholenath extends his hand in an eternal blessing, sending waves of peace and transformation across the material world.",
+            "title": "परम कृपा",
+            "text": "जैसे ही स्वर्ग खुलता है, एक शानदार दिव्य प्रभामंडल पर्वत की चोटी को आलोकित करता है। अनंत करुणा के साथ, भोलेनाथ अपना हाथ एक शाश्वत आशीर्वाद में बढ़ाते हैं, भौतिक संसार में शांति और परिवर्तन की लहरें भेजते हैं।",
             "start_time_seconds": 48,
             "end_time_seconds": 60,
             "duration_seconds": 12
