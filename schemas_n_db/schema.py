@@ -212,6 +212,42 @@ class images_on_demand(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # =====================================================
+# FULL VIDEO ON DEMAND
+# =====================================================
+class full_videos_on_demand(Base):
+    __tablename__ = "full_videos_on_demand"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    prompt: Mapped[str] = mapped_column(String(255))
+    yt_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    generated : Mapped[bool] = mapped_column(Boolean,default=False)
+    insta_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    fb_post: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# =====================================================
+# FULL_VIDEO_GOD
+# =====================================================
+class Full_Video_God(Base):
+    __tablename__ = "full_videos_god"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    url: Mapped[str] = mapped_column(Text)
+    gcp_bucket_url: Mapped[str] = mapped_column(Text)    
+    gcp_filename: Mapped[str] = mapped_column(String(255))
+    prompt_used: Mapped[str] = mapped_column(Text)
+    model_used: Mapped[str] = mapped_column(String(255))
+    insta_url: Mapped[str] = mapped_column(Text)
+    yt_url: Mapped[str] = mapped_column(Text)
+    alt_text: Mapped[str] = mapped_column(Text)
+    description: Mapped[str] = mapped_column(Text)
+    yt_posted: Mapped[bool] = mapped_column(Boolean, default=False)
+    insta_posted: Mapped[bool] = mapped_column(Boolean, default=False)      
+    fb_posted: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# =====================================================
 # CONTENT
 # =====================================================
 

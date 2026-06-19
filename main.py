@@ -17,8 +17,8 @@ logger = Logger(name="MainOrchestrator", log_file="logs/main_pipeline.log").get_
 
 def main():
     parser = argparse.ArgumentParser(description="Automated Content Posts Orchestrator")
-    parser.add_argument("--type", choices=["image", "video","both"], default="both", 
-                        help="Pipeline type to execute: 'image' or 'video' (defaults to 'both')")
+    parser.add_argument("--type", choices=["image", "video","both", "full_video"], default="both", 
+                        help="Pipeline type to execute: 'image', 'video', 'both' or 'full_video' (defaults to 'both')")
     parser.add_argument("--prompt", help="Prompt or deity name to generate the asset")
     parser.add_argument("--image", help="Existing image file path or URL (for image pipeline)")
     parser.add_argument("--video", help="Existing video file path (for video pipeline)")
@@ -82,11 +82,27 @@ def main():
             caption=args.caption
         )
         image_success = success
-    else:
+    elif args.type == "video":
         from Piepline.VideoPipeline import VideoUploadPipeline
         logger.info("Initializing Video Upload Pipeline...")
         tags_list = [t.strip() for t in args.tags.split(",")] if args.tags else None
         pipeline = VideoUploadPipeline(
+            Storage=not args.no_storage,
+            Database=not args.no_db
+        )
+        success = pipeline.run(
+            prompt=args.prompt,
+            video_path=args.video,
+            title=args.title,
+            caption=args.caption,
+            tags=tags_list
+        )
+        video_success = success
+    elif args.type == "full_video":
+        from Piepline.FullLengthVideoPipeline import FullLengthVideoUploadPipeline
+        logger.info("Initializing Full Length Video Upload Pipeline...")
+        tags_list = [t.strip() for t in args.tags.split(",")] if args.tags else None
+        pipeline = FullLengthVideoUploadPipeline(
             Storage=not args.no_storage,
             Database=not args.no_db
         )
