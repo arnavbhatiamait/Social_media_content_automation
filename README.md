@@ -116,11 +116,14 @@ Watch a sample documentary video generated fully automatically (narration, image
 
 ```directory
 ├── main.py                     # Entrypoint CLI to run pipelines
+├── main_static.py              # CLI to run the static post pipeline
 ├── requirements.txt            # Dependency configuration
+├── requirements_static.txt     # Lightweight static post dependencies
 ├── video_prompts.txt           # File-based prompt/deity queue
 ├── Piepline/
 │   ├── imagePipeline.py        # Image generation, upload & Instagram post pipeline
-│   └── VideoPipeline.py        # Full video generation & multi-platform publishing pipeline
+│   ├── VideoPipeline.py        # Full video generation & multi-platform publishing pipeline
+│   └── staticPostPipeline.py   # Static news post generator & publisher pipeline
 ├── ImageGeneration/
 │   ├── flux.py                 # Hugging Face Flux generation (Schnell/SDXL)
 │   └── iamagegen.py            # Vertex AI Imagen image generator fallback
@@ -227,6 +230,15 @@ python main.py --type video
 python main.py --type image --prompt "Lord Ganesha" --generator imagen --no-storage --no-db
 ```
 
+#### 📰 Static AI News Posting Pipeline
+```bash
+# Run the static post pipeline with automatic topic rotation (generates, GCS uploads, and posts to LinkedIn/Instagram/Facebook)
+python main_static.py
+
+# Run in multi-card carousel mode with a specific topic and social media publishing bypassed (dry-run)
+python main_static.py --carousel --topic "Generative AI" --no-publish
+```
+
 ---
 
 ## 🛠️ Setup Guides
@@ -242,6 +254,7 @@ To configure all external services, credentials, and cron jobs, follow the step-
 7.  🐳 **[Docker Environment Setup](docs/setup_docker.md)**: Build and run the entire automation pipeline within a self-contained Docker container.
 8.  📘 **[Facebook API Setup](docs/setup_facebook.md)**: Set up a Meta App, Page access permissions, generate long-lived Page tokens, and verify posts and Reels.
 9.  ⚡ **[Vercel Website Deployment](docs/setup_vercel.md)**: Deploy the Next.js administration panel to Vercel, integrate Neon PostgreSQL, and configure GCP environment variables.
+10. 🔗 **[LinkedIn API Setup](docs/setup_linkedin.md)**: Set up a LinkedIn Developer App, exchange auth code for tokens, retrieve profile/company URNs, and post text/images.
 
 ---
 
