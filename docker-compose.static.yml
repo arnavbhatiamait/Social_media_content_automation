@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Python Automation Pipeline (Static Posts Orchestrator)
+  pipeline-static:
+    build:
+      context: .
+      dockerfile: Dockerfile.static
+    container_name: social_media_pipeline_static
+    env_file:
+      - .env
+    environment:
+      - IS_DOCKER=True
+      - GCP_CREDENTIALS_PATH=/gcp_secrets.json
+    volumes:
+      # Mount required GCP credentials
+      - ./gcp_secrets.json:/gcp_secrets.json:ro
+      # Mount directories for image outputs and logging
+      - ./logs:/app/logs
+      - ./images:/app/images
+    restart: unless-stopped
+    depends_on:
+      - db-local
+    networks:
+      - social_media_net
+
+  # Local Postgres Database (Optional)
+  # To switch from the Neon DB to this local DB:
+  # 1. Update the DATABASE_URL in `.env` to:
+  #    DATABASE_URL=postgresql://neondb_owner:local_postgres_password_123@db-local:5432/neondb?sslmode=disable
+  # 2. Database schemas will automatically be created on pipeline startup.
+  db-local:
+    image: postgres:15-alpine
+    container_name: social_media_db_local
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=neondb_owner
+      - POSTGRES_PASSWORD=local_postgres_password_123
+      - POSTGRES_DB=neondb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - social_media_net
+
+networks:
+  social_media_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
